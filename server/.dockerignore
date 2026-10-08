@@ -6,6 +6,9 @@ npm-debug.log*
 **/dist
 **/build
 
+# tsbuildinfo
+**/tsconfig.build.tsbuildinfo
+
 # Development files
 .git
 .gitignore
