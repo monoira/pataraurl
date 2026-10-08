@@ -1,0 +1,23 @@
+{
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "error": "Error",
+  "flag": {
+    "englishFlag": "English flag",
+    "georgianFlag": "Georgian flag"
+  },
+  "htmlTag": {
+    "description": "An error occurred",
+    "title": "Error - PataraURL"
+  },
+  "language": {
+    "en": "English",
+    "ka": "Georgian"
+  },
+  "loading": "Loading...",
+  "mode": {
+    "dark": "Dark Mode",
+    "light": "Light Mode"
+  },
+  "websiteTitle": "PataraURL"
+}

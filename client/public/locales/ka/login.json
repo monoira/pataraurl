@@ -1,0 +1,15 @@
+{
+  "accountCreated": "ანგარიში შეიქმნა. გასაგრძელებლად შედით.",
+  "backHome": "მთავარზე დაბრუნება",
+  "email": "ელფოსტა",
+  "htmlTag": {
+    "description": "შედით თქვენს PataraURL ანგარიშზე",
+    "title": "შესვლა - PataraURL"
+  },
+  "invalidCredentials": "ელფოსტა ან პაროლი არასწორია",
+  "loginError": "შესვლა ვერ მოხერხდა",
+  "loginTitle": "შესვლა",
+  "newHere": "პირველად ხართ?",
+  "password": "პაროლი",
+  "registerLink": "რეგისტრაცია"
+}

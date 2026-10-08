@@ -1,0 +1,15 @@
+{
+  "alreadyHaveAccount": "Already have an account? {{login}}",
+  "createAccount": "Register",
+  "createAccountError": "Could not create your account",
+  "duplicateEmail": "An account with this email already exists",
+  "email": "Email",
+  "htmlTag": {
+    "description": "Create a new PataraURL account",
+    "title": "Register - PataraURL"
+  },
+  "loginLink": "Login",
+  "name": "Name",
+  "password": "Password",
+  "registerTitle": "Register"
+}

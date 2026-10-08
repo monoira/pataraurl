@@ -1,0 +1,19 @@
+{
+  "name": "PataraURL",
+  "short_name": "PataraURL",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone",
+  "theme_color": "rgb(52, 49, 72)",
+  "background_color": "rgb(237, 241, 255)"
+}

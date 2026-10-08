@@ -1,0 +1,15 @@
+{
+  "accountCreated": "Account created. Login to continue.",
+  "backHome": "Back home",
+  "email": "Email",
+  "htmlTag": {
+    "description": "Login to your PataraURL account",
+    "title": "Login - PataraURL"
+  },
+  "invalidCredentials": "Invalid email or password",
+  "loginError": "Could not log you in",
+  "loginTitle": "Login",
+  "newHere": "New here?",
+  "password": "Password",
+  "registerLink": "Register"
+}

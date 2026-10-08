@@ -1,0 +1,23 @@
+{
+  "cancel": "გაუქმება",
+  "confirm": "დადასტურება",
+  "error": "შეცდომა",
+  "flag": {
+    "englishFlag": "ინგლისეთის დროშა",
+    "georgianFlag": "საქართველოს დროშა"
+  },
+  "htmlTag": {
+    "description": "დაფიქსირდა შეცდომა",
+    "title": "შეცდომა - PataraURL"
+  },
+  "language": {
+    "en": "ინგლისური",
+    "ka": "ქართული"
+  },
+  "loading": "იტვირთება...",
+  "mode": {
+    "dark": "შავი თემა",
+    "light": "თეთრი თემა"
+  },
+  "websiteTitle": "PataraURL"
+}

@@ -1,0 +1,6 @@
+{
+  "nameRequired": "Enter your name",
+  "passwordMin": "Use at least 8 characters",
+  "passwordRequired": "Enter your password",
+  "validEmail": "Enter a valid email address"
+}

@@ -1,0 +1,26 @@
+{
+  "actions": "Actions",
+  "cancel": "Cancel",
+  "close": "Close",
+  "copied": "Copied to clipboard",
+  "copy": "Copy",
+  "createdAt": "Created",
+  "delete": "Delete",
+  "deleteConfirm": "Are you sure you want to delete this link?",
+  "edit": "Edit",
+  "hereWriteALink": "Here, type in the link",
+  "htmlTag": {
+    "description": "Manage your shortened links",
+    "title": "Links Dashboard - PataraURL"
+  },
+  "loadError": "Failed to load links or perform action",
+  "noLinks": "No shortened links yet",
+  "save": "Save",
+  "shortCode": "Short Code",
+  "shortenButton": "Shorten",
+  "stats": "Stats",
+  "statsTitle": "Link Statistics",
+  "title": "Links Dashboard",
+  "totalAccesses": "Total Accesses",
+  "urlRequired": "URL is required"
+}

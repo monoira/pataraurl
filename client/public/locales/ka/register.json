@@ -1,0 +1,15 @@
+{
+  "alreadyHaveAccount": "უკვე გაქვთ ანგარიში? {{login}}",
+  "createAccount": "რეგისტრაცია",
+  "createAccountError": "ანგარიშის შექმნა ვერ მოხერხდა",
+  "duplicateEmail": "ამ ელფოსტით ანგარიში უკვე არსებობს",
+  "email": "ელფოსტა",
+  "htmlTag": {
+    "description": "შექმენით ახალი PataraURL ანგარიში",
+    "title": "რეგისტრაცია - PataraURL"
+  },
+  "loginLink": "შესვლა",
+  "name": "სახელი",
+  "password": "პაროლი",
+  "registerTitle": "რეგისტრაცია"
+}

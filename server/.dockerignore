@@ -1,0 +1,38 @@
+# Dependencies (installed in image)
+**/node_modules
+npm-debug.log*
+
+# Build artifacts (not needed)
+**/dist
+**/build
+
+# Development files
+.git
+.gitignore
+**/.vscode
+**/.idea
+**/*.swp
+
+# Environment files
+**/.env
+**/.env.*
+
+# Testing
+**/coverage
+**/.nyc_output
+**/test
+**/*.test.js
+
+# Documentation
+**/*.md
+README.md
+CONTRIBUTING.md
+docs
+
+# LLMs / AI
+**/.agents
+
+# CI/CD
+.github
+.gitlab-ci.yml
+Jenkinsfile
