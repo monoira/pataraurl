@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { dataSourceOptions } from './data-source.js';
 import { UsersModule } from './users/users.module.js';
 import { ShortenModule } from './shorten/shorten.module.js';
+import { HealthModule } from './health/health.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ShortenModule } from './shorten/shorten.module.js';
     UsersModule,
     AuthModule,
     ShortenModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
