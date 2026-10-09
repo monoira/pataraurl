@@ -10,7 +10,8 @@ import type { RootState } from "../store";
 import { logOut, tokenRefreshed } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:3000/v1",
+  baseUrl:
+    "https://se-64a3413434674040b7287d304c28c4c2.ecs.eu-north-1.on.aws/v1",
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
