@@ -1,32 +1,31 @@
-name: build-and-push-server
+name: deploy-server
 
 on:
   push:
     branches: [main]
-    paths: ["server/**"]
-  # lets you run the workflow by hand, which is also how you roll out changed
-  # secrets (ecs only reads secrets when a task starts)
+    paths:
+      - "server/**"
+      - ".github/workflows/deploy-server.yml"
   workflow_dispatch:
 
-# id-token lets github prove to aws who is running this workflow (no stored aws keys)
 permissions:
-  id-token: write
   contents: read
+  id-token: write
 
 env:
   AWS_REGION: eu-north-1
-  ECR_REPO: pataraurl/server
-  # these two must match the cluster and service names created by pulumi
+  AWS_ACCOUNT_ID: "277824614813"
+  ECR_REPOSITORY: pataraurl/server
   ECS_CLUSTER: default
   ECS_SERVICE: server
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-24.04
+  deploy:
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v6
 
-      # qemu lets this x86 runner build an arm64 image, which is what the ecs task runs
       - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
 
@@ -35,11 +34,8 @@ jobs:
           role-to-assume: arn:aws:iam::277824614813:role/github-actions-deploy
           aws-region: ${{ env.AWS_REGION }}
 
-      - id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      - uses: aws-actions/amazon-ecr-login@v2
 
-      # the sha tag keeps every version, so you can roll back to an exact commit
-      # :latest is the tag the ecs task definition points at
       - uses: docker/build-push-action@v7
         with:
           context: ./server
@@ -47,21 +43,17 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ github.sha }}
-            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}:latest
+            277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:${{ github.sha }}
+            277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:latest
 
-      # pushing an image does not change what is running, ecs keeps the old tasks.
-      # this forces ecs to start new tasks, which pull the :latest image we just pushed.
-      # the aws cli is preinstalled on github runners and uses the role from the
-      # configure-aws-credentials step, so no extra setup is needed.
-      # the wait line pauses until the new tasks are healthy, so a broken deploy fails the job.
-      - name: deploy to ecs
+      - name: Deploy to ECS
         run: |
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
             --service "$ECS_SERVICE" \
             --force-new-deployment \
-            --no-cli-pager > /dev/null
+            --no-cli-pager
+
           aws ecs wait services-stable \
             --cluster "$ECS_CLUSTER" \
             --services "$ECS_SERVICE"

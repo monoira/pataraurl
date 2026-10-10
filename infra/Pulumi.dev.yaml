@@ -1,3 +1,4 @@
-encryptionsalt: v1:LptM879Nmi4=:v1:xz0xK7EP+73V92+W:BqeUMBmil3R2xX42sM6r3dbMXohBpw==
+encryptionsalt: v1:L8VJIuys10M=:v1:BBSbZ/rouBlA84pA:hlEpwTvz6BTFFXpeXFNiN0a6Gb8LDw==
 config:
   aws:region: eu-north-1
+  infra:corsOrigin: http://localhost:5173
