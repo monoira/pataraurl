@@ -7,6 +7,10 @@
     },
     "dependencies": {
         "@pulumi/aws": "^7.0.0",
-        "@pulumi/pulumi": "^3.113.0"
+        "@pulumi/pulumi": "^3.113.0",
+        "@pulumi/random": "^4.21.2"
+    },
+    "allowScripts": {
+        "protobufjs@7.6.6": true
     }
 }

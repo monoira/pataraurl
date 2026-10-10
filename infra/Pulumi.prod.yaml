@@ -1,0 +1,4 @@
+encryptionsalt: v1:FmSrSw5rhxU=:v1:XLCA590tCmax3Tkl:FJBn6TOZiN3eqLUG0qSlhH20CYaAUw==
+config:
+  aws:region: eu-north-1
+  infra:corsOrigin: https://pataraurl.pages.dev
