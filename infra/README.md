@@ -1,42 +1,48 @@
 # README
 
-## workflow
+## Workflow
 
-### 1
+### 1. deploy infrastructure
+
+```bash
+pulumi preview
+```
 
 ```bash
 pulumi up
 ```
 
-### 2
+### 2. update parameters
 
-run the GitHub workflow (Actions, **deploy-server**, Run workflow). This pushes the image to ECR, which now exists.
+in `AWS console -> Systems Manager -> Parameter Store`:
 
-### 3
+| Parameter           | Action                                   |
+| ------------------- | ---------------------------------------- |
+| `CORS_ORIGIN`       | set to client URL (including `https://`) |
+| `OWNER_NAME`        | owner name                               |
+| `OWNER_EMAIL`       | owner login email                        |
+| `OWNER_PASSWORD`    | keep generated or replace                |
+| `JWT_SECRET`        | keep generated                           |
+| `DATABASE_PASSWORD` | do not touch                             |
 
-| Parameter           | What to do                                              |
-| ------------------- | ------------------------------------------------------- |
-| `CORS_ORIGIN`       | set to `https://pataraurl.pages.dev`                    |
-| `OWNER_EMAIL`       | your login email                                        |
-| `OWNER_NAME`        | your name                                               |
-| `OWNER_PASSWORD`    | already a random strong value; keep it or type your own |
-| `JWT_SECRET`        | **already random, leave it**                            |
-| `DATABASE_PASSWORD` | **don't touch it**                                      |
+### 3. push server image
 
-`DATABASE_PASSWORD` is the only one you must not edit. Pulumi generated it and gave the same value to the database. If you change it in the console, the app's password stops matching the database's and the server can't connect. Pulumi also created `JWT_SECRET` and `OWNER_PASSWORD` for you, so those two only need a change if you want your own value.
+run the GitHub workflow `deploy-server` manually to push the image to `aws/ecr`
 
-### 4
+### 4. start the service
 
-ECS > Clusters > default > server > Update > Desired tasks = 1. Wait until the task is Running.
+`AWS console -> ECS -> Clusters -> default -> server -> Update -> Desired tasks = 1`
 
-### 5
+### 5. connect the client
+
+get the API URL:
 
 ```bash
 pulumi stack output apiUrl
 ```
 
-set it as the API URL in Cloudflare Pages, redeploy the client.
+set it as the API URL in Cloudflare Pages and redeploy the client
 
-### 6
+### after changing parameters
 
-after editing any parameter, restart the service (run the workflow, or ECS > Update > Force new deployment), otherwise the old values stay in use.
+force a new ECS deployment so tasks pick up the new values
