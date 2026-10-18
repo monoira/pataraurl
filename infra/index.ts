@@ -42,6 +42,29 @@ const allSubnets = aws.ec2.getSubnetsOutput({
 });
 const subnetIds = allSubnets.ids.apply((ids) => [...ids].sort().slice(0, 2));
 
+// An Internet Gateway acts as a door between your private network (VPC)
+// and the public internet. Without it, your services cannot talk to
+// AWS services like the Parameter Store, or the internet in general.
+const igw = new aws.ec2.InternetGateway("main-igw", {
+  vpcId: vpc.id,
+  tags: { Name: "main-igw" },
+});
+
+// Every network has a "map" (Route Table) that tells traffic where to go.
+// We look up the main map for this VPC so we can add an instruction to it.
+const mainRouteTable = aws.ec2.getRouteTableOutput({
+  vpcId: vpc.id,
+  filters: [{ name: "association.main", values: ["true"] }],
+});
+
+// We add a specific instruction (Route) to the map:
+// "If traffic is trying to go to the internet (0.0.0.0/0), send it to our new door (IGW)."
+const igwRoute = new aws.ec2.Route("igw-route", {
+  routeTableId: mainRouteTable.id,
+  destinationCidrBlock: "0.0.0.0/0",
+  gatewayId: igw.id,
+});
+
 // ECR
 
 const serverRepo = new aws.ecr.Repository("server-repo", {
