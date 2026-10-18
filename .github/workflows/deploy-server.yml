@@ -33,6 +33,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::277824614813:role/github-actions-deploy
           aws-region: ${{ env.AWS_REGION }}
+          audience: sts.amazonaws.com
 
       - uses: aws-actions/amazon-ecr-login@v2
 

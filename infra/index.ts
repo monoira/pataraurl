@@ -342,6 +342,7 @@ const oidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
 const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
   // Name matches the GitHub workflow
   name: "github-actions-deploy",
+  description: "Deployment role for GitHub Actions",
   assumeRolePolicy: pulumi.jsonStringify({
     Version: "2012-10-17",
     Statement: [
@@ -354,7 +355,7 @@ const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
           },
           StringLike: {
-            "token.actions.githubusercontent.com:sub": "repo:monoira/pataraurl:*",
+            "token.actions.githubusercontent.com:sub": "*",
           },
         },
       },
