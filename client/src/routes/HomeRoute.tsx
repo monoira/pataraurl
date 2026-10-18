@@ -45,7 +45,7 @@ function HomeRoute() {
           sx={{
             width: "100%",
             borderRadius: "8px",
-            marginTop: "32px",
+            marginTop: "48px",
             boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
           }}
         />
