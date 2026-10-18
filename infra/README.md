@@ -1,5 +1,16 @@
 # README
 
+this pulumi setup doesn't have ALB (application load balancer), to keep
+costs to ~$25 a month, instead of ~$50 a month with ALB.
+
+it mainly uses:
+
+- aws/IAM
+- aws/cloudwatch
+- aws/ecr
+- aws/ecs
+- aws/rds (postgres)
+
 ## Workflow
 
 ### 1. deploy infrastructure

@@ -352,8 +352,9 @@ const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
         Condition: {
           StringEquals: {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub":
-              "repo:monoira/pataraurl:ref:refs/heads/main",
+          },
+          StringLike: {
+            "token.actions.githubusercontent.com:sub": "repo:monoira/pataraurl:*",
           },
         },
       },
