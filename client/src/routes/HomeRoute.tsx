@@ -1,7 +1,8 @@
-import { Button, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "../hooks";
 import SEO from "../components/SEO";
+import heroImage from "../assets/images/hero.png";
 
 function HomeRoute() {
   const { t } = useTranslation(["common", "home", "navigation"]);
@@ -36,6 +37,18 @@ function HomeRoute() {
             </Button>
           </Stack>
         )}
+
+        <Box
+          component="img"
+          src={heroImage}
+          alt={t("home:hero.alt")}
+          sx={{
+            width: "100%",
+            borderRadius: "8px",
+            marginTop: "32px",
+            boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+          }}
+        />
       </Container>
     </>
   );

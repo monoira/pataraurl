@@ -52,6 +52,9 @@ export default interface Resources {
   errors: {};
   forms: {};
   home: {
+    hero: {
+      alt: "image, which is showcasing how site works";
+    };
     htmlTag: {
       description: "URL shortener";
       title: "PataraURL - URL Shortener";
