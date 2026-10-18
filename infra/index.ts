@@ -2,14 +2,39 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as random from "@pulumi/random";
 
-// No settings live in this file or in Pulumi config. Your own values start as
-// "change-me" and you set the real ones in the AWS console
-// (Systems Manager > Parameter Store). The service starts with 0 tasks so
-// nothing runs until you have done that.
+// no config in code - set initial values in aws console (parameter store).
 const placeholder = "change-me";
 
 const containerName = "server";
 const containerPort = 3000;
+
+// github deployment configuration
+// AWS account id must match workflow's role-to-assume
+// immutable oidc sub claim format for newer repositories:
+// repo:OWNER@OWNER_ID/REPO@REPO_ID:ref:refs/heads/main
+
+// gh api user --jq '.login'
+const githubOwner = "monoira";
+// gh api users/OWNER --jq '.id'
+const githubOwnerId = "116330974";
+
+// gh api repos/OWNER/REPO --jq '.name'
+const githubRepo = "pataraurl";
+// gh api repos/OWNER/REPO --jq '.id'
+const githubRepoId = "1410160052";
+
+// aws sts get-caller-identity --query Account --output text
+const expectedAWSAccountId = "277824614813";
+
+const callerIdentity = aws.getCallerIdentityOutput();
+callerIdentity.accountId.apply((accountId) => {
+  if (accountId !== expectedAWSAccountId) {
+    throw new Error(
+      `Pulumi is deploying to AWS account ${accountId}, but the GitHub workflow ` +
+        `assumes a role in ${expectedAWSAccountId}. Fix your AWS credentials/profile.`,
+    );
+  }
+});
 
 const vpc = aws.ec2.getVpcOutput({ default: true });
 const allSubnets = aws.ec2.getSubnetsOutput({
@@ -41,10 +66,9 @@ new aws.ecr.LifecyclePolicy("server-repo-lifecycle", {
   }),
 });
 
-// Security groups
-// API Gateway -> (VPC link) -> task -> database
-// The task has a public IP only so it can pull images. Its security group
-// accepts traffic from the VPC link and nothing else.
+// security groups
+// flow: api gateway -> vpc link -> task -> database
+// task uses public ip for image pulls; security group restricts ingress to vpc link
 
 const vpcLinkSecurityGroup = new aws.ec2.SecurityGroup("vpc-link-sg", {
   vpcId: vpc.id,
@@ -80,10 +104,9 @@ const dbSecurityGroup = new aws.ec2.SecurityGroup("db-sg", {
   ],
 });
 
-// Settings and secrets in SSM Parameter Store (free).
-// Pulumi sets the first value, then never overwrites it, so you can edit
-// values in the AWS console (Systems Manager > Parameter Store).
-// After editing, restart the service to pick up the change.
+// settings and secrets stored in ssm parameter store
+// pulumi sets initial values and ignores subsequent changes to allow manual console updates
+// restart service after configuration changes
 
 const jwtSecret = new random.RandomPassword("jwt-secret", {
   length: 64,
@@ -128,13 +151,13 @@ const appParams: Record<string, aws.ssm.Parameter> = {
     secure: true,
     editable: true,
   }),
-  // Pulumi owns this one because it must match the database
+  // pulumi manages this as it must match database
   DATABASE_PASSWORD: param("DATABASE_PASSWORD", dbPassword.result, {
     secure: true,
   }),
 };
 
-// Database
+// RDS database
 
 const database = new aws.rds.Instance("database", {
   engine: "postgres",
@@ -149,7 +172,6 @@ const database = new aws.rds.Instance("database", {
   // WARN: there's no backups allowed on AWS free plan
   // change this to 7 when you upgrade to paid plan
   backupRetentionPeriod: 0,
-  deletionProtection: true,
   skipFinalSnapshot: false,
   finalSnapshotIdentifier: "pataraurl-final-snapshot",
 });
@@ -199,7 +221,7 @@ const logGroup = new aws.cloudwatch.LogGroup("server-log-group", {
   retentionInDays: 7,
 });
 
-// Name matches the GitHub workflow (ECS_CLUSTER: default)
+// name matches github workflow (ecs_cluster: default)
 const cluster = new aws.ecs.Cluster("cluster", { name: "default" });
 
 const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
@@ -219,7 +241,7 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
       image: pulumi.interpolate`${serverRepo.repositoryUrl}:latest`,
       essential: true,
       portMappings: [{ containerPort, protocol: "tcp" }],
-      // Wired to the infrastructure, so set here and not in Parameter Store
+      // infrastructure-related, not in parameter store
       environment: [
         { name: "NODE_ENV", value: "production" },
         { name: "PORT", value: String(containerPort) },
@@ -245,8 +267,7 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
   ]),
 });
 
-// Service discovery: ECS registers the task's address here, and API Gateway
-// looks it up. This replaces the load balancer.
+// service discovery: ecs registers task address; api gateway uses it, replacing load balancer
 
 const namespace = new aws.servicediscovery.PrivateDnsNamespace("namespace", {
   name: "pataraurl.local",
@@ -258,21 +279,23 @@ const discoveryService = new aws.servicediscovery.Service("server-discovery", {
   dnsConfig: {
     namespaceId: namespace.id,
     routingPolicy: "MULTIVALUE",
-    // SRV is required: API Gateway needs both the IP and the port
+    // srv required for api gateway (needs ip and port)
     dnsRecords: [{ ttl: 10, type: "SRV" }],
   },
   healthCheckCustomConfig: {},
 });
 
-// Name matches the GitHub workflow (ECS_SERVICE: server)
+// name matches github workflow (ecs_service: server)
 const service = new aws.ecs.Service(
   "server-service",
   {
     name: "server",
     cluster: cluster.arn,
     taskDefinition: taskDefinition.arn,
-    // Starts at 0 on purpose. After you edit the parameters, set this to 1 in
-    // the ECS console. Pulumi ignores later changes to the count.
+    // starts at 0 on purpose
+    // update to 1 in ecs console after editing parameters in
+    // AWS console -> Systems Manager -> Parameter Store
+    // note: pulumi does ignore subsequent count changes
     desiredCount: 0,
     launchType: "FARGATE",
     networkConfiguration: {
@@ -293,7 +316,7 @@ const service = new aws.ecs.Service(
   },
 );
 
-// API Gateway HTTP API: the public HTTPS front door
+// api gateway provides public https ingress
 
 const api = new aws.apigatewayv2.Api("api", {
   name: "pataraurl",
@@ -325,14 +348,14 @@ new aws.apigatewayv2.Stage("stage", {
   apiId: api.id,
   name: "$default",
   autoDeploy: true,
-  // Caps requests so a bot flood cannot run up the bill
+  // cap requests to prevent bot flooding from running up the bill
   defaultRouteSettings: {
     throttlingRateLimit: 20,
     throttlingBurstLimit: 40,
   },
 });
 
-// GitHub Actions deploy role (OIDC, no stored AWS keys)
+// github actions deploy role uses oidc without stored aws keys
 
 const oidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
   url: "https://token.actions.githubusercontent.com",
@@ -340,7 +363,7 @@ const oidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
 });
 
 const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
-  // Name matches the GitHub workflow
+  // name matches github workflow
   name: "github-actions-deploy",
   description: "Deployment role for GitHub Actions",
   assumeRolePolicy: pulumi.jsonStringify({
@@ -353,9 +376,8 @@ const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
         Condition: {
           StringEquals: {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          },
-          StringLike: {
-            "token.actions.githubusercontent.com:sub": "*",
+            // restrict to main branch pushes and workflow dispatches using case-sensitive sub claim
+            "token.actions.githubusercontent.com:sub": `repo:${githubOwner}@${githubOwnerId}/${githubRepo}@${githubRepoId}:ref:refs/heads/main`,
           },
         },
       },
