@@ -17,11 +17,11 @@ costs to ~$25 a month, instead of ~$50 a month with ALB.
 ### 1. deploy infrastructure
 
 ```bash
-pulumi preview
+pulumi refresh --yes && pulumi preview
 ```
 
 ```bash
-pulumi up
+pulumi refresh --yes && pulumi up
 ```
 
 ### 2. update parameters
