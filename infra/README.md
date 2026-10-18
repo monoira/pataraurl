@@ -1,6 +1,6 @@
 # README
 
-it mainly uses:
+this project mainly uses:
 
 - aws/IAM
 - aws/cloudwatch
@@ -12,16 +12,16 @@ NOTE:
 this pulumi setup doesn't have ALB (application load balancer) in order to keep
 costs to ~$25 a month, instead of ~$50 a month with ALB.
 
-## Workflow
+## workflow
 
 ### 1. deploy infrastructure
 
 ```bash
-pulumi refresh --yes && pulumi preview
+pulumi preview
 ```
 
 ```bash
-pulumi refresh --yes && pulumi up
+pulumi up
 ```
 
 ### 2. update parameters
