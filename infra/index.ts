@@ -146,7 +146,9 @@ const database = new aws.rds.Instance("database", {
   vpcSecurityGroupIds: [dbSecurityGroup.id],
   storageEncrypted: true,
   publiclyAccessible: false,
-  backupRetentionPeriod: 7,
+  // WARN: there's no backups allowed on AWS free plan
+  // change this to 7 when you upgrade to paid plan
+  backupRetentionPeriod: 0,
   deletionProtection: true,
   skipFinalSnapshot: false,
   finalSnapshotIdentifier: "pataraurl-final-snapshot",
