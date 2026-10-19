@@ -18,6 +18,7 @@ const placeholder = "change-me";
  * container name used in task definition and service discovery
  */
 const containerName = "server";
+
 /**
  * container port exposed by the server application
  */
@@ -31,6 +32,7 @@ const containerPort = 3000;
  * ```
  */
 const githubOwner = "monoira";
+
 /**
  * GitHub repository owner numeric ID for OIDC trust condition
  *
@@ -39,6 +41,7 @@ const githubOwner = "monoira";
  * ```
  */
 const githubOwnerId = "116330974";
+
 /**
  * GitHub repository name for OIDC trust condition
  *
@@ -47,6 +50,7 @@ const githubOwnerId = "116330974";
  * ```
  */
 const githubRepo = "pataraurl";
+
 /**
  * GitHub repository numeric ID for OIDC trust condition
  *
@@ -86,12 +90,14 @@ callerIdentity.accountId.apply((accountId) => {
  * default VPC reference to provision infrastructure within existing network
  */
 const vpc = aws.ec2.getVpcOutput({ default: true });
+
 /**
  * subnet lookup within the VPC for ECS tasks and VPC links
  */
 const allSubnets = aws.ec2.getSubnetsOutput({
   filters: [{ name: "vpc-id", values: [vpc.id] }],
 });
+
 /**
  * selected subnet IDs sorted and limited for deployment
  */
