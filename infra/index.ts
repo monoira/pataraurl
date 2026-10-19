@@ -22,23 +22,43 @@ const containerPort = 3000;
 
 /**
  * GitHub repository owner username for OIDC trust condition
+ *
+ * ```sh
+ * gh api user --jq '.login'
+ * ```
  */
 const githubOwner = "monoira";
 /**
  * GitHub repository owner numeric ID for OIDC trust condition
+ *
+ * ```sh
+ * gh api users/OWNER --jq '.id'
+ * ```
  */
 const githubOwnerId = "116330974";
 /**
  * GitHub repository name for OIDC trust condition
+ *
+ * ```sh
+ * gh api repos/OWNER/REPO --jq '.name'
+ * ```
  */
 const githubRepo = "pataraurl";
 /**
  * GitHub repository numeric ID for OIDC trust condition
+ *
+ * ```sh
+ * gh api repos/OWNER/REPO --jq '.id'
+ * ```
  */
 const githubRepoId = "1410160052";
 
 /**
  * expected AWS account ID to prevent accidental cross-account deployments
+ *
+ * ```sh
+ * aws sts get-caller-identity --query Account --output text
+ * ```
  */
 const expectedAWSAccountId = "277824614813";
 
