@@ -6,27 +6,45 @@ import * as random from "@pulumi/random";
 // CONFIGURATION & GITHUB DEPLOYMENT OIDC
 // ==========================================
 
-/** placeholder value used for initial SSM parameters before manual console configuration */
+/**
+ * placeholder value used for initial SSM parameters before manual console configuration
+ */
 const placeholder = "change-me";
 
-/** container name used in task definition and service discovery */
+/**
+ * container name used in task definition and service discovery
+ */
 const containerName = "server";
-/** container port exposed by the server application */
+/**
+ * container port exposed by the server application
+ */
 const containerPort = 3000;
 
-/** GitHub repository owner username for OIDC trust condition */
+/**
+ * GitHub repository owner username for OIDC trust condition
+ */
 const githubOwner = "monoira";
-/** GitHub repository owner numeric ID for OIDC trust condition */
+/**
+ * GitHub repository owner numeric ID for OIDC trust condition
+ */
 const githubOwnerId = "116330974";
-/** GitHub repository name for OIDC trust condition */
+/**
+ * GitHub repository name for OIDC trust condition
+ */
 const githubRepo = "pataraurl";
-/** GitHub repository numeric ID for OIDC trust condition */
+/**
+ * GitHub repository numeric ID for OIDC trust condition
+ */
 const githubRepoId = "1410160052";
 
-/** expected AWS account ID to prevent accidental cross-account deployments */
+/**
+ * expected AWS account ID to prevent accidental cross-account deployments
+ */
 const expectedAWSAccountId = "277824614813";
 
-/** validates deployment caller identity against expected AWS account */
+/**
+ * validates deployment caller identity against expected AWS account
+ */
 const callerIdentity = aws.getCallerIdentityOutput();
 callerIdentity.accountId.apply((accountId) => {
   if (accountId !== expectedAWSAccountId) {
@@ -41,13 +59,19 @@ callerIdentity.accountId.apply((accountId) => {
 // NETWORKING & VPC
 // ==========================================
 
-/** default VPC reference to provision infrastructure within existing network */
+/**
+ * default VPC reference to provision infrastructure within existing network
+ */
 const vpc = aws.ec2.getVpcOutput({ default: true });
-/** subnet lookup within the VPC for ECS tasks and VPC links */
+/**
+ * subnet lookup within the VPC for ECS tasks and VPC links
+ */
 const allSubnets = aws.ec2.getSubnetsOutput({
   filters: [{ name: "vpc-id", values: [vpc.id] }],
 });
-/** selected subnet IDs sorted and limited for deployment */
+/**
+ * selected subnet IDs sorted and limited for deployment
+ */
 const subnetIds = allSubnets.ids.apply((ids) => [...ids].sort().slice(0, 2));
 
 /**
@@ -59,7 +83,9 @@ const igw = new aws.ec2.InternetGateway("main-igw", {
   tags: { Name: "main-igw" },
 });
 
-/** main route table reference to attach outbound internet routing rules */
+/**
+ * main route table reference to attach outbound internet routing rules
+ */
 const mainRouteTable = aws.ec2.getRouteTableOutput({
   vpcId: vpc.id,
   filters: [{ name: "association.main", values: ["true"] }],
@@ -80,7 +106,9 @@ const igwRoute = new aws.ec2.Route("igw-route", {
 // ECR CONTAINER REGISTRY
 // ==========================================
 
-/** ECR repository storing container images for ECS task deployment */
+/**
+ * ECR repository storing container images for ECS task deployment
+ */
 const serverRepo = new aws.ecr.Repository("server-repo", {
   name: "pataraurl/server",
 });
@@ -111,7 +139,9 @@ new aws.ecr.LifecyclePolicy("server-repo-lifecycle", {
 // SECURITY GROUPS
 // ==========================================
 
-/** security group for API Gateway VPC link egress traffic */
+/**
+ * security group for API Gateway VPC link egress traffic
+ */
 const vpcLinkSecurityGroup = new aws.ec2.SecurityGroup("vpc-link-sg", {
   vpcId: vpc.id,
   egress: [
@@ -138,7 +168,9 @@ const taskSecurityGroup = new aws.ec2.SecurityGroup("task-sg", {
   ],
 });
 
-/** security group restricting database access exclusively to ECS tasks */
+/**
+ * security group restricting database access exclusively to ECS tasks
+ */
 const dbSecurityGroup = new aws.ec2.SecurityGroup("db-sg", {
   vpcId: vpc.id,
   ingress: [
@@ -155,19 +187,25 @@ const dbSecurityGroup = new aws.ec2.SecurityGroup("db-sg", {
 // PARAMETER STORE & SECRETS
 // ==========================================
 
-/** random secret generated for JWT authentication */
+/**
+ * random secret generated for JWT authentication
+ */
 const jwtSecret = new random.RandomPassword("jwt-secret", {
   length: 64,
   special: false,
 });
 
-/** random password generated for application owner account */
+/**
+ * random password generated for application owner account
+ */
 const ownerPassword = new random.RandomPassword("owner-password", {
   length: 24,
   special: false,
 });
 
-/** random password generated for PostgreSQL database master user */
+/**
+ * random password generated for PostgreSQL database master user
+ */
 const dbPassword = new random.RandomPassword("db-password", {
   length: 32,
   special: false,
@@ -193,7 +231,9 @@ function param(
   );
 }
 
-/** application parameters stored in SSM parameter store for runtime configuration */
+/**
+ * application parameters stored in SSM parameter store for runtime configuration
+ */
 const appParams: Record<string, aws.ssm.Parameter> = {
   CORS_ORIGIN: param("CORS_ORIGIN", placeholder, { editable: true }),
   OWNER_EMAIL: param("OWNER_EMAIL", placeholder, { editable: true }),
@@ -215,7 +255,9 @@ const appParams: Record<string, aws.ssm.Parameter> = {
 // RDS DATABASE
 // ==========================================
 
-/** RDS PostgreSQL database instance storing application data */
+/**
+ * RDS PostgreSQL database instance storing application data
+ */
 const database = new aws.rds.Instance("database", {
   engine: "postgres",
   engineVersion: "18",
@@ -235,7 +277,9 @@ const database = new aws.rds.Instance("database", {
 // ECS & IAM
 // ==========================================
 
-/** IAM role allowing ECS tasks to assume execution permissions */
+/**
+ * IAM role allowing ECS tasks to assume execution permissions
+ */
 const executionRole = new aws.iam.Role("execution-role", {
   assumeRolePolicy: pulumi.jsonStringify({
     Version: "2012-10-17",
@@ -249,7 +293,9 @@ const executionRole = new aws.iam.Role("execution-role", {
   }),
 });
 
-/** policy attachment granting standard ECS execution permissions */
+/**
+ * policy attachment granting standard ECS execution permissions
+ */
 const executionRoleAttachment = new aws.iam.RolePolicyAttachment(
   "execution-role-attachment",
   {
@@ -280,12 +326,16 @@ const executionRoleSsmPolicy = new aws.iam.RolePolicy(
   },
 );
 
-/** CloudWatch log group collecting container stdout logs with retention policy */
+/**
+ * CloudWatch log group collecting container stdout logs with retention policy
+ */
 const logGroup = new aws.cloudwatch.LogGroup("server-log-group", {
   retentionInDays: 7,
 });
 
-/** ECS cluster hosting the server application service */
+/**
+ * ECS cluster hosting the server application service
+ */
 const cluster = new aws.ecs.Cluster("cluster", { name: "default" });
 
 /**
@@ -326,7 +376,7 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
         logDriver: "awslogs",
         options: {
           "awslogs-group": logGroup.name,
-          "awslogs-region": aws.getRegionOutput().name,
+          "awslogs-region": aws.getRegionOutput().region,
           "awslogs-stream-prefix": "ecs",
         },
       },
@@ -334,21 +384,25 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
   ]),
 });
 
-/** private DNS namespace enabling internal service discovery within the VPC */
+/**
+ * private DNS namespace enabling internal service discovery within the VPC
+ */
 const namespace = new aws.servicediscovery.PrivateDnsNamespace("namespace", {
   name: "pataraurl.local",
   vpc: vpc.id,
 });
 
-/** service discovery registration allowing API Gateway to resolve ECS task IPs */
+/**
+ * service discovery registration allowing API Gateway to resolve ECS task IPs
+ */
 const discoveryService = new aws.servicediscovery.Service("server-discovery", {
   name: "server",
+  forceDestroy: true,
   dnsConfig: {
     namespaceId: namespace.id,
     routingPolicy: "MULTIVALUE",
     dnsRecords: [{ ttl: 10, type: "SRV" }],
   },
-  healthCheckCustomConfig: {},
 });
 
 /**
@@ -385,20 +439,26 @@ const service = new aws.ecs.Service(
 // API GATEWAY
 // ==========================================
 
-/** API Gateway HTTP API providing public HTTPS ingress */
+/**
+ * API Gateway HTTP API providing public HTTPS ingress
+ */
 const api = new aws.apigatewayv2.Api("api", {
   name: "pataraurl",
   protocolType: "HTTP",
 });
 
-/** VPC link routing API Gateway traffic securely into the VPC */
+/**
+ * VPC link routing API Gateway traffic securely into the VPC
+ */
 const vpcLink = new aws.apigatewayv2.VpcLink("vpc-link", {
   name: "pataraurl",
   securityGroupIds: [vpcLinkSecurityGroup.id],
   subnetIds,
 });
 
-/** HTTP proxy integration connecting API Gateway to service discovery */
+/**
+ * HTTP proxy integration connecting API Gateway to service discovery
+ */
 const integration = new aws.apigatewayv2.Integration("integration", {
   apiId: api.id,
   integrationType: "HTTP_PROXY",
@@ -408,14 +468,18 @@ const integration = new aws.apigatewayv2.Integration("integration", {
   integrationUri: discoveryService.arn,
 });
 
-/** default route forwarding all incoming requests to the integration proxy */
+/**
+ * default route forwarding all incoming requests to the integration proxy
+ */
 new aws.apigatewayv2.Route("route", {
   apiId: api.id,
   routeKey: "$default",
   target: pulumi.interpolate`integrations/${integration.id}`,
 });
 
-/** API Gateway stage with automatic deployment and rate limiting */
+/**
+ * API Gateway stage with automatic deployment and rate limiting
+ */
 new aws.apigatewayv2.Stage("stage", {
   apiId: api.id,
   name: "$default",
@@ -430,7 +494,9 @@ new aws.apigatewayv2.Stage("stage", {
 // GITHUB ACTIONS OIDC DEPLOY ROLE
 // ==========================================
 
-/** OIDC identity provider trusting GitHub Actions token issuer */
+/**
+ * OIDC identity provider trusting GitHub Actions token issuer
+ */
 const oidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
   url: "https://token.actions.githubusercontent.com",
   clientIdLists: ["sts.amazonaws.com"],
@@ -496,7 +562,9 @@ new aws.iam.RolePolicy("githubActionsDeployPolicy", {
 
 /** public endpoint URL of the API Gateway */
 export const apiUrl = api.apiEndpoint;
+
 /** ECR repository URL for container image pushes */
 export const ecrRepositoryUrl = serverRepo.repositoryUrl;
+
 /** RDS database connection endpoint address */
 export const rdsEndpoint = database.endpoint;
