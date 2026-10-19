@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "skills": {
+    "package-usage": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/package-usage/SKILL.md",
+      "computedHash": "0c4b95ebec57a8a17fca0de5a27c7f44c7a80e32f0e23d9f59c42d0d57515d55"
+    },
+    "provider-upgrade": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/provider-upgrade/SKILL.md",
+      "computedHash": "0b2c53ea7585a8b7c704bf3cf35fd8097e98fa965c76fb32a3543b2ffa58b5b2"
+    },
+    "pulumi-automation-api": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-automation-api/SKILL.md",
+      "computedHash": "2d19e88634977983169523fc68b227efb170e776a02b53895fce7f34b2d9c390"
+    },
+    "pulumi-best-practices": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-best-practices/SKILL.md",
+      "computedHash": "fe72db4c8d462495bcc5ca6ae5f5fd7ba05318f4668ccb011dce5a7c1c24fa6c"
+    },
+    "pulumi-component": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-component/SKILL.md",
+      "computedHash": "b3e3d1ff41bc3f3c8afa215d46de11e148ae771731540568a6d5467eeb45711f"
+    },
+    "pulumi-context-api": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-context-api/SKILL.md",
+      "computedHash": "bd124ccb1a742355844339e140c8c1e4a93ab5add1ef447e82f9e147573e7448"
+    },
+    "pulumi-debug-failed-operation": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-debug-failed-operation/SKILL.md",
+      "computedHash": "8aacbb60e1e17e4810995a3ec646edbb6f4b0a635ba3b4f1fd578e928bbc4dd6"
+    },
+    "pulumi-esc": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-esc/SKILL.md",
+      "computedHash": "d34704ec6219287d66de3340bf9403670c5380eed604dfef5f809ab66e2fabdb"
+    },
+    "pulumi-overview": {
+      "source": "pulumi/agent-skills",
+      "sourceType": "github",
+      "skillPath": "pulumi/skills/pulumi-overview/SKILL.md",
+      "computedHash": "cf9c02b1a12ea7f5ae8efc4b32fa80b238a4addef6d3a958e21ad9ff6127d9f8"
+    }
+  }
+}

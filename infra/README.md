@@ -1,6 +1,15 @@
 # README
 
-this project mainly uses:
+- [README](#readme)
+  - [workflow](#workflow)
+    - [1. deploy infrastructure](#1-deploy-infrastructure)
+    - [2. update parameters](#2-update-parameters)
+    - [3. push server image](#3-push-server-image)
+    - [4. start the service](#4-start-the-service)
+    - [5. connect the client](#5-connect-the-client)
+  - [Pulumi agent skills](#pulumi-agent-skills)
+
+This project mainly uses:
 
 - aws/IAM
 - aws/cloudwatch
@@ -9,8 +18,9 @@ this project mainly uses:
 - aws/rds (postgres)
 
 NOTE:
-this pulumi setup doesn't have ALB (application load balancer) in order to keep
+This Pulumi setup doesn't have ALB (application load balancer) in order to keep
 costs to ~$25 a month, instead of ~$50 a month with ALB.
+It also uses AWS Parameter Store instead of AWS Secrets Manager for the same reason.
 
 ## workflow
 
@@ -61,6 +71,9 @@ pulumi stack output apiUrl
 set it as the baseUrl on client,  
 then redeploy the client
 
-### finally
+## Pulumi agent skills
 
-force a new ECS deployment so tasks pick up the new values
+https://github.com/pulumi/agent-skills#universal-all-agents
+
+installed via `npx skills`  
+only installed `pulumi` plugin group

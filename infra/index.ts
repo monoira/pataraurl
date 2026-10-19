@@ -12,6 +12,12 @@ import * as random from "@pulumi/random";
 const placeholder = "change-me";
 
 /**
+ * active aws region loaded from stack configuration
+ */
+const awsConfig = new pulumi.Config("aws");
+const region = awsConfig.require("region");
+
+/**
  * container name used in task definition and service discovery
  */
 const containerName = "server";
@@ -396,7 +402,7 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
         logDriver: "awslogs",
         options: {
           "awslogs-group": logGroup.name,
-          "awslogs-region": aws.getRegionOutput().region,
+          "awslogs-region": region,
           "awslogs-stream-prefix": "ecs",
         },
       },
