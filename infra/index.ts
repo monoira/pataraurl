@@ -2,30 +2,31 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as random from "@pulumi/random";
 
-// no config in code - set initial values in aws console (parameter store).
+// ==========================================
+// CONFIGURATION & GITHUB DEPLOYMENT OIDC
+// ==========================================
+
+/** placeholder value used for initial SSM parameters before manual console configuration */
 const placeholder = "change-me";
 
+/** container name used in task definition and service discovery */
 const containerName = "server";
+/** container port exposed by the server application */
 const containerPort = 3000;
 
-// github deployment configuration
-// AWS account id must match workflow's role-to-assume
-// immutable oidc sub claim format for newer repositories:
-// repo:OWNER@OWNER_ID/REPO@REPO_ID:ref:refs/heads/main
-
-// gh api user --jq '.login'
+/** GitHub repository owner username for OIDC trust condition */
 const githubOwner = "monoira";
-// gh api users/OWNER --jq '.id'
+/** GitHub repository owner numeric ID for OIDC trust condition */
 const githubOwnerId = "116330974";
-
-// gh api repos/OWNER/REPO --jq '.name'
+/** GitHub repository name for OIDC trust condition */
 const githubRepo = "pataraurl";
-// gh api repos/OWNER/REPO --jq '.id'
+/** GitHub repository numeric ID for OIDC trust condition */
 const githubRepoId = "1410160052";
 
-// aws sts get-caller-identity --query Account --output text
+/** expected AWS account ID to prevent accidental cross-account deployments */
 const expectedAWSAccountId = "277824614813";
 
+/** validates deployment caller identity against expected AWS account */
 const callerIdentity = aws.getCallerIdentityOutput();
 callerIdentity.accountId.apply((accountId) => {
   if (accountId !== expectedAWSAccountId) {
@@ -36,41 +37,58 @@ callerIdentity.accountId.apply((accountId) => {
   }
 });
 
+// ==========================================
+// NETWORKING & VPC
+// ==========================================
+
+/** default VPC reference to provision infrastructure within existing network */
 const vpc = aws.ec2.getVpcOutput({ default: true });
+/** subnet lookup within the VPC for ECS tasks and VPC links */
 const allSubnets = aws.ec2.getSubnetsOutput({
   filters: [{ name: "vpc-id", values: [vpc.id] }],
 });
+/** selected subnet IDs sorted and limited for deployment */
 const subnetIds = allSubnets.ids.apply((ids) => [...ids].sort().slice(0, 2));
 
-// An Internet Gateway acts as a door between your private network (VPC)
-// and the public internet. Without it, your services cannot talk to
-// AWS services like the Parameter Store, or the internet in general.
+/**
+ * internet gateway allowing private VPC resources
+ * to communicate with the external internet
+ */
 const igw = new aws.ec2.InternetGateway("main-igw", {
   vpcId: vpc.id,
   tags: { Name: "main-igw" },
 });
 
-// Every network has a "map" (Route Table) that tells traffic where to go.
-// We look up the main map for this VPC so we can add an instruction to it.
+/** main route table reference to attach outbound internet routing rules */
 const mainRouteTable = aws.ec2.getRouteTableOutput({
   vpcId: vpc.id,
   filters: [{ name: "association.main", values: ["true"] }],
 });
 
-// We add a specific instruction (Route) to the map:
-// "If traffic is trying to go to the internet (0.0.0.0/0), send it to our new door (IGW)."
+/**
+ * default route directing outbound traffic to the internet gateway
+ * so tasks can pull images and reach external APIs
+ */
+// oxlint-disable-next-line no-unused-vars
 const igwRoute = new aws.ec2.Route("igw-route", {
   routeTableId: mainRouteTable.id,
   destinationCidrBlock: "0.0.0.0/0",
   gatewayId: igw.id,
 });
 
-// ECR
+// ==========================================
+// ECR CONTAINER REGISTRY
+// ==========================================
 
+/** ECR repository storing container images for ECS task deployment */
 const serverRepo = new aws.ecr.Repository("server-repo", {
   name: "pataraurl/server",
 });
 
+/**
+ * ECR lifecycle policy to automatically expire older images
+ * and control storage costs
+ */
 new aws.ecr.LifecyclePolicy("server-repo-lifecycle", {
   repository: serverRepo.name,
   policy: pulumi.jsonStringify({
@@ -89,10 +107,11 @@ new aws.ecr.LifecyclePolicy("server-repo-lifecycle", {
   }),
 });
 
-// security groups
-// flow: api gateway -> vpc link -> task -> database
-// task uses public ip for image pulls; security group restricts ingress to vpc link
+// ==========================================
+// SECURITY GROUPS
+// ==========================================
 
+/** security group for API Gateway VPC link egress traffic */
 const vpcLinkSecurityGroup = new aws.ec2.SecurityGroup("vpc-link-sg", {
   vpcId: vpc.id,
   egress: [
@@ -100,6 +119,10 @@ const vpcLinkSecurityGroup = new aws.ec2.SecurityGroup("vpc-link-sg", {
   ],
 });
 
+/**
+ * security group restricting task ingress exclusively
+ * to API Gateway VPC link traffic
+ */
 const taskSecurityGroup = new aws.ec2.SecurityGroup("task-sg", {
   vpcId: vpc.id,
   ingress: [
@@ -115,6 +138,7 @@ const taskSecurityGroup = new aws.ec2.SecurityGroup("task-sg", {
   ],
 });
 
+/** security group restricting database access exclusively to ECS tasks */
 const dbSecurityGroup = new aws.ec2.SecurityGroup("db-sg", {
   vpcId: vpc.id,
   ingress: [
@@ -127,25 +151,32 @@ const dbSecurityGroup = new aws.ec2.SecurityGroup("db-sg", {
   ],
 });
 
-// settings and secrets stored in ssm parameter store
-// pulumi sets initial values and ignores subsequent changes to allow manual console updates
-// restart service after configuration changes
+// ==========================================
+// PARAMETER STORE & SECRETS
+// ==========================================
 
+/** random secret generated for JWT authentication */
 const jwtSecret = new random.RandomPassword("jwt-secret", {
   length: 64,
   special: false,
 });
 
+/** random password generated for application owner account */
 const ownerPassword = new random.RandomPassword("owner-password", {
   length: 24,
   special: false,
 });
 
+/** random password generated for PostgreSQL database master user */
 const dbPassword = new random.RandomPassword("db-password", {
   length: 32,
   special: false,
 });
 
+/**
+ * helper function to provision SSM parameters with optional
+ * change ignoring for manual console updates
+ */
 function param(
   name: string,
   value: pulumi.Input<string>,
@@ -162,6 +193,7 @@ function param(
   );
 }
 
+/** application parameters stored in SSM parameter store for runtime configuration */
 const appParams: Record<string, aws.ssm.Parameter> = {
   CORS_ORIGIN: param("CORS_ORIGIN", placeholder, { editable: true }),
   OWNER_EMAIL: param("OWNER_EMAIL", placeholder, { editable: true }),
@@ -174,14 +206,16 @@ const appParams: Record<string, aws.ssm.Parameter> = {
     secure: true,
     editable: true,
   }),
-  // pulumi manages this as it must match database
   DATABASE_PASSWORD: param("DATABASE_PASSWORD", dbPassword.result, {
     secure: true,
   }),
 };
 
-// RDS database
+// ==========================================
+// RDS DATABASE
+// ==========================================
 
+/** RDS PostgreSQL database instance storing application data */
 const database = new aws.rds.Instance("database", {
   engine: "postgres",
   engineVersion: "18",
@@ -192,15 +226,16 @@ const database = new aws.rds.Instance("database", {
   vpcSecurityGroupIds: [dbSecurityGroup.id],
   storageEncrypted: true,
   publiclyAccessible: false,
-  // WARN: there's no backups allowed on AWS free plan
-  // change this to 7 when you upgrade to paid plan
   backupRetentionPeriod: 0,
   skipFinalSnapshot: false,
   finalSnapshotIdentifier: "pataraurl-final-snapshot",
 });
 
-// ECS
+// ==========================================
+// ECS & IAM
+// ==========================================
 
+/** IAM role allowing ECS tasks to assume execution permissions */
 const executionRole = new aws.iam.Role("execution-role", {
   assumeRolePolicy: pulumi.jsonStringify({
     Version: "2012-10-17",
@@ -214,6 +249,7 @@ const executionRole = new aws.iam.Role("execution-role", {
   }),
 });
 
+/** policy attachment granting standard ECS execution permissions */
 const executionRoleAttachment = new aws.iam.RolePolicyAttachment(
   "execution-role-attachment",
   {
@@ -223,6 +259,10 @@ const executionRoleAttachment = new aws.iam.RolePolicyAttachment(
   },
 );
 
+/**
+ * IAM role policy granting ECS execution role
+ * permission to read SSM parameters
+ */
 const executionRoleSsmPolicy = new aws.iam.RolePolicy(
   "execution-role-ssm-policy",
   {
@@ -240,13 +280,18 @@ const executionRoleSsmPolicy = new aws.iam.RolePolicy(
   },
 );
 
+/** CloudWatch log group collecting container stdout logs with retention policy */
 const logGroup = new aws.cloudwatch.LogGroup("server-log-group", {
   retentionInDays: 7,
 });
 
-// name matches github workflow (ecs_cluster: default)
+/** ECS cluster hosting the server application service */
 const cluster = new aws.ecs.Cluster("cluster", { name: "default" });
 
+/**
+ * ECS task definition configuring Fargate container limits,
+ * environment variables, and secrets
+ */
 const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
   family: "pataraurl-server",
   cpu: "256",
@@ -264,7 +309,6 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
       image: pulumi.interpolate`${serverRepo.repositoryUrl}:latest`,
       essential: true,
       portMappings: [{ containerPort, protocol: "tcp" }],
-      // infrastructure-related, not in parameter store
       environment: [
         { name: "NODE_ENV", value: "production" },
         { name: "PORT", value: String(containerPort) },
@@ -290,35 +334,33 @@ const taskDefinition = new aws.ecs.TaskDefinition("server-task", {
   ]),
 });
 
-// service discovery: ecs registers task address; api gateway uses it, replacing load balancer
-
+/** private DNS namespace enabling internal service discovery within the VPC */
 const namespace = new aws.servicediscovery.PrivateDnsNamespace("namespace", {
   name: "pataraurl.local",
   vpc: vpc.id,
 });
 
+/** service discovery registration allowing API Gateway to resolve ECS task IPs */
 const discoveryService = new aws.servicediscovery.Service("server-discovery", {
   name: "server",
   dnsConfig: {
     namespaceId: namespace.id,
     routingPolicy: "MULTIVALUE",
-    // srv required for api gateway (needs ip and port)
     dnsRecords: [{ ttl: 10, type: "SRV" }],
   },
   healthCheckCustomConfig: {},
 });
 
-// name matches github workflow (ecs_service: server)
+/**
+ * ECS service managing task deployment, desired count,
+ * and service discovery integration
+ */
 const service = new aws.ecs.Service(
   "server-service",
   {
     name: "server",
     cluster: cluster.arn,
     taskDefinition: taskDefinition.arn,
-    // starts at 0 on purpose
-    // update to 1 in ecs console after editing parameters in
-    // AWS console -> Systems Manager -> Parameter Store
-    // note: pulumi does ignore subsequent count changes
     desiredCount: 0,
     launchType: "FARGATE",
     networkConfiguration: {
@@ -339,19 +381,24 @@ const service = new aws.ecs.Service(
   },
 );
 
-// api gateway provides public https ingress
+// ==========================================
+// API GATEWAY
+// ==========================================
 
+/** API Gateway HTTP API providing public HTTPS ingress */
 const api = new aws.apigatewayv2.Api("api", {
   name: "pataraurl",
   protocolType: "HTTP",
 });
 
+/** VPC link routing API Gateway traffic securely into the VPC */
 const vpcLink = new aws.apigatewayv2.VpcLink("vpc-link", {
   name: "pataraurl",
   securityGroupIds: [vpcLinkSecurityGroup.id],
   subnetIds,
 });
 
+/** HTTP proxy integration connecting API Gateway to service discovery */
 const integration = new aws.apigatewayv2.Integration("integration", {
   apiId: api.id,
   integrationType: "HTTP_PROXY",
@@ -361,32 +408,39 @@ const integration = new aws.apigatewayv2.Integration("integration", {
   integrationUri: discoveryService.arn,
 });
 
+/** default route forwarding all incoming requests to the integration proxy */
 new aws.apigatewayv2.Route("route", {
   apiId: api.id,
   routeKey: "$default",
   target: pulumi.interpolate`integrations/${integration.id}`,
 });
 
+/** API Gateway stage with automatic deployment and rate limiting */
 new aws.apigatewayv2.Stage("stage", {
   apiId: api.id,
   name: "$default",
   autoDeploy: true,
-  // cap requests to prevent bot flooding from running up the bill
   defaultRouteSettings: {
     throttlingRateLimit: 20,
     throttlingBurstLimit: 40,
   },
 });
 
-// github actions deploy role uses oidc without stored aws keys
+// ==========================================
+// GITHUB ACTIONS OIDC DEPLOY ROLE
+// ==========================================
 
+/** OIDC identity provider trusting GitHub Actions token issuer */
 const oidcProvider = new aws.iam.OpenIdConnectProvider("github-oidc", {
   url: "https://token.actions.githubusercontent.com",
   clientIdLists: ["sts.amazonaws.com"],
 });
 
+/**
+ * IAM role assumed by GitHub Actions via OIDC for
+ * deployments without stored AWS keys
+ */
 const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
-  // name matches github workflow
   name: "github-actions-deploy",
   description: "Deployment role for GitHub Actions",
   assumeRolePolicy: pulumi.jsonStringify({
@@ -399,7 +453,6 @@ const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
         Condition: {
           StringEquals: {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            // restrict to main branch pushes and workflow dispatches using case-sensitive sub claim
             "token.actions.githubusercontent.com:sub": `repo:${githubOwner}@${githubOwnerId}/${githubRepo}@${githubRepoId}:ref:refs/heads/main`,
           },
         },
@@ -408,6 +461,10 @@ const githubActionsDeployRole = new aws.iam.Role("githubActionsDeployRole", {
   }),
 });
 
+/**
+ * IAM policy granting GitHub Actions permission to push
+ * container images and update ECS services
+ */
 new aws.iam.RolePolicy("githubActionsDeployPolicy", {
   role: githubActionsDeployRole.id,
   policy: pulumi.jsonStringify({
@@ -433,6 +490,13 @@ new aws.iam.RolePolicy("githubActionsDeployPolicy", {
   }),
 });
 
+// ==========================================
+// STACK EXPORTS
+// ==========================================
+
+/** public endpoint URL of the API Gateway */
 export const apiUrl = api.apiEndpoint;
+/** ECR repository URL for container image pushes */
 export const ecrRepositoryUrl = serverRepo.repositoryUrl;
+/** RDS database connection endpoint address */
 export const rdsEndpoint = database.endpoint;
