@@ -6,16 +6,13 @@ import * as random from "@pulumi/random";
 // CONFIGURATION & GITHUB DEPLOYMENT OIDC
 // ==========================================
 
+const awsConfig = new pulumi.Config("aws");
+const region = awsConfig.require("region");
+
 /**
  * placeholder value used for initial SSM parameters before manual console configuration
  */
 const placeholder = "change-me";
-
-/**
- * active aws region loaded from stack configuration
- */
-const awsConfig = new pulumi.Config("aws");
-const region = awsConfig.require("region");
 
 /**
  * container name used in task definition and service discovery
