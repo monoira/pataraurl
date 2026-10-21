@@ -11,8 +11,8 @@ const dataSourceOptions: DataSourceOptions = {
   database: process.env.DATABASE_NAME,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/migrations/*.js'],
-  synchronize: process.env.NODE_ENV === 'development',
-  migrationsRun: process.env.NODE_ENV === 'production',
+  synchronize: false,
+  migrationsRun: true,
   ssl:
     process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
