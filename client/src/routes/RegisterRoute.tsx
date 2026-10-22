@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import {
   Alert,
   Box,
@@ -16,6 +16,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCreateUserMutation } from "../api/usersApi";
 import { type FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
+import { useAppSelector } from "../hooks";
 import SEO from "../components/SEO";
 
 const registerSchema = (messages: {
@@ -32,6 +33,7 @@ const registerSchema = (messages: {
 type RegisterForm = z.infer<ReturnType<typeof registerSchema>>;
 
 function RegisterRoute() {
+  const user = useAppSelector((state) => state.auth.user);
   const { t } = useTranslation(["register", "validation"]);
   const navigate = useNavigate();
   const [createUser, { isLoading }] = useCreateUserMutation();
@@ -50,6 +52,10 @@ function RegisterRoute() {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterForm>({ resolver: zodResolver(schema) });
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const onSubmit = async (values: RegisterForm) => {
     setServerError(null);

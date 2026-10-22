@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import {
   Alert,
   Box,
@@ -18,7 +18,7 @@ import {
 import { useLoginMutation } from "../api/authApi";
 import { apiSlice } from "../api/apiSlice";
 import { type FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
-import { useAppDispatch } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { completeLogin } from "../features/auth/authThunks";
 import SEO from "../components/SEO";
 
@@ -33,6 +33,7 @@ const loginSchema = (messages: {
 type LoginForm = z.infer<ReturnType<typeof loginSchema>>;
 
 function LoginRoute() {
+  const user = useAppSelector((state) => state.auth.user);
   const { t } = useTranslation(["login", "validation"]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,6 +59,10 @@ function LoginRoute() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(schema) });
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
   const onSubmit = async (values: LoginForm) => {
     setServerError(null);
