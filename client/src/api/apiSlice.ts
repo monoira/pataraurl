@@ -11,7 +11,7 @@ import { logOut, tokenRefreshed } from "../features/auth/authSlice";
 
 const baseUrl = import.meta.env.DEV
   ? "http://localhost:3000/v1"
-  : "https://se-64a3413434674040b7287d304c28c4c2.ecs.eu-north-1.on.aws/v1";
+  : "https://az29s0q9x6.execute-api.eu-north-1.amazonaws.com/v1";
 
 const baseQuery = fetchBaseQuery({
   baseUrl,
