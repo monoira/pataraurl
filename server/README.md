@@ -1,28 +1,39 @@
 # README
 
-## docker commands
+## docker commands - local
 
-day to day development.
-run this on each change that touches the database.
-data does not persist.
+### day to day development
+
+database data does NOT persist in postgres_data
 
 ```bash
 docker compose down -v && docker compose up -d --build
 ```
 
-if change doesn't touch database, then run this. (data persists in postgres_data).
+use when you want database data to persist
+database data persists in postgres_data
 
 ```bash
 docker compose up -d --build
 ```
 
-stop containers. (data persists in postgres_data).
+### stop containers
+
+stop containers.
+database data persists in postgres_data.
 
 ```bash
 docker compose down
 ```
 
-building production image
+stop containers.
+database data does NOT persist in postgres_data.
+
+```bash
+docker compose down -v
+```
+
+## building production image
 
 ```bash
 docker build --target production -t production:latest .
@@ -31,5 +42,9 @@ docker build --target production -t production:latest .
 ## migration examples
 
 ```bash
-npm run migration:generate src/migrations/RenameThisToThat
+npm run migration:generate -- src/migrations/RenameThisToThat
+```
+
+```bash
+npm run migration:run
 ```

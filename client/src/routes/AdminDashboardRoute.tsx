@@ -232,6 +232,7 @@ function AdminDashboardRoute() {
                           aria-label={t("adminDashboard:remove")}
                           color="error"
                           size="small"
+                          sx={{ ml: 1 }}
                           disabled={isDeleting}
                           onClick={() =>
                             setConfirmDialog({

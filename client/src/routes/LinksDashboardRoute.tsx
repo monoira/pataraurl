@@ -45,6 +45,7 @@ function LinksDashboardRoute() {
   const { data: fetchedLinks } = useGetAllShortensQuery();
 
   const [urlInput, setUrlInput] = useState("");
+  const [nicknameInput, setNicknameInput] = useState("");
   // Derive the links directly from the query data to avoid useEffect synchronization
   const links = fetchedLinks ?? [];
 
@@ -53,6 +54,7 @@ function LinksDashboardRoute() {
 
   const [editDialog, setEditDialog] = useState<ShortenItem | null>(null);
   const [editUrl, setEditUrl] = useState("");
+  const [editNickname, setEditNickname] = useState("");
 
   const [statsCode, setStatsCode] = useState<string | null>(null);
 
@@ -82,8 +84,12 @@ function LinksDashboardRoute() {
     }
 
     try {
-      await createShorten({ url: urlInput.trim() }).unwrap();
+      await createShorten({
+        url: urlInput.trim(),
+        nickname: nicknameInput.trim() || null,
+      }).unwrap();
       setUrlInput("");
+      setNicknameInput("");
       setSuccessMsg(t("linksDashboard:copied"));
     } catch {
       setErrorMsg(t("linksDashboard:loadError"));
@@ -103,10 +109,12 @@ function LinksDashboardRoute() {
       await updateShorten({
         shortCode: editDialog.shortCode,
         url: editUrl.trim(),
+        nickname: editNickname.trim() || null,
       }).unwrap();
 
       setEditDialog(null);
       setEditUrl("");
+      setEditNickname("");
     } catch {
       setErrorMsg(t("linksDashboard:loadError"));
     }
@@ -179,11 +187,20 @@ function LinksDashboardRoute() {
             label={t("linksDashboard:hereWriteALink")}
             variant="outlined"
             size="small"
-            fullWidth
+            autoFocus
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="https://example.com/very/long/url"
-            sx={{ flexGrow: 1 }}
+            sx={{ flex: "1 1 280px" }}
+          />
+          <TextField
+            label={t("linksDashboard:nicknameLabel")}
+            variant="outlined"
+            size="small"
+            value={nicknameInput}
+            onChange={(e) => setNicknameInput(e.target.value)}
+            placeholder={t("linksDashboard:nicknamePlaceholder")}
+            sx={{ flex: "1 1 200px" }}
           />
           <Button
             type="submit"
@@ -201,6 +218,7 @@ function LinksDashboardRoute() {
             <TableHead>
               <TableRow>
                 <TableCell>{t("linksDashboard:hereWriteALink")}</TableCell>
+                <TableCell>{t("linksDashboard:nickname")}</TableCell>
                 <TableCell>{t("linksDashboard:shortCode")}</TableCell>
                 <TableCell>{t("linksDashboard:createdAt")}</TableCell>
                 <TableCell align="right">
@@ -212,7 +230,7 @@ function LinksDashboardRoute() {
               {links.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     align="center"
                     sx={{ py: 4, color: "text.secondary" }}
                   >
@@ -233,6 +251,7 @@ function LinksDashboardRoute() {
                     >
                       {link.url}
                     </TableCell>
+                    <TableCell>{link.nickname || "-"}</TableCell>
                     <TableCell
                       sx={{
                         fontWeight: "fontWeightBold",
@@ -268,6 +287,7 @@ function LinksDashboardRoute() {
                           onClick={() => {
                             setEditDialog(link);
                             setEditUrl(link.url);
+                            setEditNickname(link.nickname ?? "");
                           }}
                         >
                           <Edit sx={{ fontSize: "small" }} />
@@ -291,28 +311,48 @@ function LinksDashboardRoute() {
 
         {/* Edit Dialog */}
         <Dialog open={!!editDialog} onClose={() => setEditDialog(null)}>
-          <DialogTitle>{t("linksDashboard:edit")}</DialogTitle>
-          <DialogContent sx={{ pt: 2, minWidth: 400 }}>
-            <TextField
-              label={t("linksDashboard:hereWriteALink")}
-              fullWidth
-              size="small"
-              value={editUrl}
-              onChange={(e) => setEditUrl(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditDialog(null)}>
-              {t("linksDashboard:cancel")}
-            </Button>
-            <Button
-              onClick={handleSaveEdit}
-              variant="contained"
-              disabled={isUpdating || !editUrl.trim()}
-            >
-              {t("linksDashboard:save")}
-            </Button>
-          </DialogActions>
+          <Box
+            component="form"
+            onSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+              e.preventDefault();
+              handleSaveEdit();
+            }}
+          >
+            <DialogTitle>{t("linksDashboard:edit")}</DialogTitle>
+            <DialogContent sx={{ minWidth: 400 }}>
+              <Box sx={{ pt: 2 }}>
+                <TextField
+                  label={t("linksDashboard:hereWriteALink")}
+                  fullWidth
+                  size="small"
+                  autoFocus
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                />
+                <TextField
+                  label={t("linksDashboard:nickname")}
+                  fullWidth
+                  size="small"
+                  sx={{ mt: 2 }}
+                  value={editNickname}
+                  onChange={(e) => setEditNickname(e.target.value)}
+                  placeholder={t("linksDashboard:nicknamePlaceholder")}
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setEditDialog(null)}>
+                {t("linksDashboard:cancel")}
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isUpdating || !editUrl.trim()}
+              >
+                {t("linksDashboard:save")}
+              </Button>
+            </DialogActions>
+          </Box>
         </Dialog>
 
         {/* Stats Dialog */}

@@ -16,6 +16,9 @@ export class Shorten {
   @Column()
   url: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  nickname: string | null;
+
   @Column({ unique: true })
   shortCode: string;
 

@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateShortenDto {
   @ApiProperty({
@@ -9,4 +9,9 @@ export class CreateShortenDto {
   @IsNotEmpty()
   @IsUrl()
   readonly url: string;
+
+  @ApiPropertyOptional({ example: 'My favorite site', nullable: true })
+  @IsOptional()
+  @IsString()
+  readonly nickname?: string | null;
 }

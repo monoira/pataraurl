@@ -18,8 +18,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  // comma-separated origins for multi-environment deployments
+  const corsOrigin = configService.getOrThrow<string>('CORS_ORIGIN');
+  const origin = corsOrigin.includes(',')
+    ? corsOrigin.split(',').map((o) => o.trim())
+    : corsOrigin;
   app.enableCors({
-    origin: configService.getOrThrow<string>('CORS_ORIGIN'),
+    origin,
     credentials: true,
   });
 

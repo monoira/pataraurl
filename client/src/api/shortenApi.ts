@@ -3,6 +3,7 @@ import { apiSlice } from "./apiSlice";
 export type ShortenItem = {
   id: string;
   url: string;
+  nickname: string | null;
   shortCode: string;
   createdAt: string;
   updatedAt: string;
@@ -11,7 +12,10 @@ export type ShortenItem = {
 
 export const shortenApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createShorten: builder.mutation<ShortenItem, { url: string }>({
+    createShorten: builder.mutation<
+      ShortenItem,
+      { url: string; nickname?: string | null }
+    >({
       query: (body) => ({ url: "/shorten", method: "POST", body }),
       invalidatesTags: ["Shorten"],
     }),
@@ -33,14 +37,15 @@ export const shortenApi = apiSlice.injectEndpoints({
     }),
     updateShorten: builder.mutation<
       ShortenItem,
-      { shortCode: string; url: string }
+      { shortCode: string; url: string; nickname?: string | null }
     >({
-      query: ({ shortCode, url }) => ({
+      query: ({ shortCode, url, nickname }) => ({
         url: `/shorten/${shortCode}`,
         method: "PUT",
-        body: { url },
+        body: { url, nickname },
       }),
       invalidatesTags: (_result, _error, { shortCode }) => [
+        "Shorten",
         { type: "Shorten", id: shortCode },
       ],
     }),
@@ -50,6 +55,7 @@ export const shortenApi = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_result, _error, shortCode) => [
+        "Shorten",
         { type: "Shorten", id: shortCode },
       ],
     }),

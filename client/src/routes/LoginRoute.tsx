@@ -115,6 +115,7 @@ function LoginRoute() {
               fullWidth
               label={t("login:email")}
               type="email"
+              autoFocus
               error={Boolean(errors.email)}
               helperText={errors.email?.message}
               {...register("email")}

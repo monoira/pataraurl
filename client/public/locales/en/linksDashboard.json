@@ -14,6 +14,9 @@
     "title": "Links Dashboard - PataraURL"
   },
   "loadError": "Failed to load links or perform action",
+  "nickname": "Nickname",
+  "nicknameLabel": "Nickname (optional)",
+  "nicknamePlaceholder": "e.g. My favorite site",
   "noLinks": "No shortened links yet",
   "save": "Save",
   "shortCode": "Short Code",

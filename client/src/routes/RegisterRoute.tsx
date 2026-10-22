@@ -105,6 +105,7 @@ function RegisterRoute() {
               fullWidth
               label={t("register:name")}
               type="text"
+              autoFocus
               error={Boolean(errors.name)}
               helperText={errors.name?.message}
               {...register("name")}

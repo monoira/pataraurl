@@ -36,6 +36,7 @@ export class ShortenService {
 
     const shorten = this.shortenRepository.create({
       url: createShortenDto.url,
+      nickname: createShortenDto.nickname ?? null,
       shortCode,
       userId: user.id,
     });
@@ -96,7 +97,6 @@ export class ShortenService {
     }));
   }
 
-  // only updates URL, not shortCode or anything else
   async update(
     shortCode: string,
     updateShortenDto: UpdateShortenDto,
@@ -121,6 +121,10 @@ export class ShortenService {
 
     if (updateShortenDto.url) {
       shorten.url = updateShortenDto.url;
+    }
+
+    if (updateShortenDto.nickname !== undefined) {
+      shorten.nickname = updateShortenDto.nickname;
     }
 
     const updated = await this.shortenRepository.save(shorten);
@@ -152,6 +156,7 @@ export class ShortenService {
     return {
       id: String(shorten.id),
       url: shorten.url,
+      nickname: shorten.nickname,
       shortCode: shorten.shortCode,
       createdAt: shorten.createdAt
         ? shorten.createdAt.toISOString()
