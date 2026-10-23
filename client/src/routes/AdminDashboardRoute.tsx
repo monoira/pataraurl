@@ -162,9 +162,7 @@ function AdminDashboardRoute() {
             <MenuItem value="">{t("adminDashboard:allRoles")}</MenuItem>
             <MenuItem value={Role.OWNER}>{t("adminDashboard:owner")}</MenuItem>
             <MenuItem value={Role.ADMIN}>{t("adminDashboard:admin")}</MenuItem>
-            <MenuItem value={Role.MEMBER}>
-              {t("adminDashboard:member")}
-            </MenuItem>
+            <MenuItem value={Role.MEMBER}>{t("adminDashboard:member")}</MenuItem>
           </Select>
         </Stack>
         {error && (
@@ -179,40 +177,24 @@ function AdminDashboardRoute() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
-                    {sortLabel("name", t("adminDashboard:name"))}
-                  </TableCell>
-                  <TableCell>
-                    {sortLabel("email", t("adminDashboard:email"))}
-                  </TableCell>
-                  <TableCell>
-                    {sortLabel("role", t("adminDashboard:role"))}
-                  </TableCell>
-                  <TableCell>
-                    {sortLabel("createdAt", t("adminDashboard:createdAt"))}
-                  </TableCell>
-                  <TableCell>
-                    {sortLabel("updatedAt", t("adminDashboard:updatedAt"))}
-                  </TableCell>
+                  <TableCell>{sortLabel("name", t("adminDashboard:name"))}</TableCell>
+                  <TableCell>{sortLabel("email", t("adminDashboard:email"))}</TableCell>
+                  <TableCell>{sortLabel("role", t("adminDashboard:role"))}</TableCell>
+                  <TableCell>{sortLabel("createdAt", t("adminDashboard:createdAt"))}</TableCell>
+                  <TableCell>{sortLabel("updatedAt", t("adminDashboard:updatedAt"))}</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
                 {users.map((member) => (
                   <TableRow key={member.id}>
-                    <TableCell sx={{ fontWeight: "fontWeightBold" }}>
-                      {member.name}
-                    </TableCell>
+                    <TableCell sx={{ fontWeight: "fontWeightBold" }}>{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
                     <TableCell>{member.role}</TableCell>
                     <TableCell>{formatDate(member.createdAt)}</TableCell>
                     <TableCell>{formatDate(member.updatedAt)}</TableCell>
                     <TableCell align="right">
-                      <Stack
-                        component="div"
-                        direction="row"
-                        sx={{ justifyContent: "flex-end" }}
-                      >
+                      <Stack component="div" direction="row" sx={{ justifyContent: "flex-end" }}>
                         <Select
                           size="small"
                           value={member.role}
@@ -268,17 +250,12 @@ function AdminDashboardRoute() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setConfirmDialog(null)}>
-              {t("common:cancel")}
-            </Button>
+            <Button onClick={() => setConfirmDialog(null)}>{t("common:cancel")}</Button>
             <Button
               onClick={() => {
                 if (confirmDialog?.type === "delete") {
                   removeUser(confirmDialog.userId);
-                } else if (
-                  confirmDialog?.type === "role" &&
-                  confirmDialog.newRole
-                ) {
+                } else if (confirmDialog?.type === "role" && confirmDialog.newRole) {
                   changeUserRole(confirmDialog.userId, confirmDialog.newRole);
                 }
               }}
@@ -288,11 +265,7 @@ function AdminDashboardRoute() {
             </Button>
           </DialogActions>
         </Dialog>
-        <Stack
-          direction="row"
-          sx={{ mt: 2, justifyContent: "flex-end" }}
-          spacing={1}
-        >
+        <Stack direction="row" sx={{ mt: 2, justifyContent: "flex-end" }} spacing={1}>
           <Button
             size="small"
             variant="outlined"

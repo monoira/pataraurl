@@ -13,17 +13,10 @@ function LanguageChangeDropdown() {
 
   return (
     <>
-      <IconButton
-        size="small"
-        onClick={(event) => setAnchorEl(event.currentTarget)}
-      >
+      <IconButton size="small" onClick={(event) => setAnchorEl(event.currentTarget)}>
         <Translate />
       </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
         <MenuItem
           onClick={() => {
             i18n.changeLanguage("en");
@@ -31,12 +24,7 @@ function LanguageChangeDropdown() {
           }}
         >
           {t("common:language.en")}{" "}
-          <Box
-            component="img"
-            sx={{ ml: 1 }}
-            src={gbFlag}
-            alt={t("common:flag.englishFlag")}
-          />
+          <Box component="img" sx={{ ml: 1 }} src={gbFlag} alt={t("common:flag.englishFlag")} />
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -45,12 +33,7 @@ function LanguageChangeDropdown() {
           }}
         >
           {t("common:language.ka")}{" "}
-          <Box
-            component="img"
-            sx={{ ml: 1 }}
-            src={geFlag}
-            alt={t("common:flag.georgianFlag")}
-          />
+          <Box component="img" sx={{ ml: 1 }} src={geFlag} alt={t("common:flag.georgianFlag")} />
         </MenuItem>
       </Menu>
     </>

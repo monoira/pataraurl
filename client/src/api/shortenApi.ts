@@ -12,24 +12,16 @@ export type ShortenItem = {
 
 export const shortenApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    createShorten: builder.mutation<
-      ShortenItem,
-      { url: string; nickname?: string | null }
-    >({
+    createShorten: builder.mutation<ShortenItem, { url: string; nickname?: string | null }>({
       query: (body) => ({ url: "/shorten", method: "POST", body }),
       invalidatesTags: ["Shorten"],
     }),
     getShorten: builder.query<ShortenItem, string>({
       query: (shortCode) => `/shorten/${shortCode}`,
     }),
-    getShortenStats: builder.query<
-      ShortenItem & { accessCount: number },
-      string
-    >({
+    getShortenStats: builder.query<ShortenItem & { accessCount: number }, string>({
       query: (shortCode) => `/shorten/${shortCode}/stats`,
-      providesTags: (_result, _error, shortCode) => [
-        { type: "Shorten", id: shortCode },
-      ],
+      providesTags: (_result, _error, shortCode) => [{ type: "Shorten", id: shortCode }],
     }),
     getAllShortens: builder.query<ShortenItem[], void>({
       query: () => "/shorten/all-stats",

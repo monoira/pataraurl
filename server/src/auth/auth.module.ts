@@ -33,12 +33,6 @@ import { RefreshJwtStrategy } from './strategies/refresh.strategy.js';
     RefreshJwtAuthGuard,
     RolesGuard,
   ],
-  exports: [
-    AuthService,
-    JwtAuthGuard,
-    RefreshJwtAuthGuard,
-    RolesGuard,
-    PassportModule,
-  ],
+  exports: [AuthService, JwtAuthGuard, RefreshJwtAuthGuard, RolesGuard, PassportModule],
 })
 export class AuthModule {}

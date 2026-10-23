@@ -105,12 +105,7 @@ function Header() {
       </Stack>
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         {user ? (
-          <Button
-            color="inherit"
-            size="small"
-            startIcon={<Logout />}
-            onClick={handleLogout}
-          >
+          <Button color="inherit" size="small" startIcon={<Logout />} onClick={handleLogout}>
             {t("navigation:logout")}
           </Button>
         ) : (

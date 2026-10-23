@@ -58,16 +58,15 @@ function LinksDashboardRoute() {
 
   const [statsCode, setStatsCode] = useState<string | null>(null);
 
-  const [deleteConfirmCode, setDeleteConfirmCode] = useState<string | null>(
-    null,
-  );
+  const [deleteConfirmCode, setDeleteConfirmCode] = useState<string | null>(null);
 
   const [createShorten, { isLoading: isCreating }] = useCreateShortenMutation();
   const [updateShorten, { isLoading: isUpdating }] = useUpdateShortenMutation();
   const [deleteShorten, { isLoading: isDeleting }] = useDeleteShortenMutation();
 
-  const { data: statsData, isFetching: isStatsLoading } =
-    useGetShortenStatsQuery(statsCode ?? "", { skip: !statsCode });
+  const { data: statsData, isFetching: isStatsLoading } = useGetShortenStatsQuery(statsCode ?? "", {
+    skip: !statsCode,
+  });
 
   if (!user) {
     return <Navigate replace to="/login" />;
@@ -151,21 +150,13 @@ function LinksDashboardRoute() {
         </Typography>
 
         {errorMsg && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-            onClose={() => setErrorMsg(null)}
-          >
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMsg(null)}>
             {errorMsg}
           </Alert>
         )}
 
         {successMsg && (
-          <Alert
-            severity="success"
-            sx={{ mb: 2 }}
-            onClose={() => setSuccessMsg(null)}
-          >
+          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccessMsg(null)}>
             {successMsg}
           </Alert>
         )}
@@ -221,19 +212,13 @@ function LinksDashboardRoute() {
                 <TableCell>{t("linksDashboard:nickname")}</TableCell>
                 <TableCell>{t("linksDashboard:shortCode")}</TableCell>
                 <TableCell>{t("linksDashboard:createdAt")}</TableCell>
-                <TableCell align="right">
-                  {t("linksDashboard:actions")}
-                </TableCell>
+                <TableCell align="right">{t("linksDashboard:actions")}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {links.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    align="center"
-                    sx={{ py: 4, color: "text.secondary" }}
-                  >
+                  <TableCell colSpan={5} align="center" sx={{ py: 4, color: "text.secondary" }}>
                     {t("linksDashboard:noLinks")}
                   </TableCell>
                 </TableRow>
@@ -262,11 +247,7 @@ function LinksDashboardRoute() {
                     </TableCell>
                     <TableCell>{formatDate(link.createdAt)}</TableCell>
                     <TableCell align="right">
-                      <Stack
-                        direction="row"
-                        spacing={0.5}
-                        sx={{ justifyContent: "flex-end" }}
-                      >
+                      <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
                         <IconButton
                           size="small"
                           title={t("linksDashboard:copy")}
@@ -341,14 +322,8 @@ function LinksDashboardRoute() {
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setEditDialog(null)}>
-                {t("linksDashboard:cancel")}
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={isUpdating || !editUrl.trim()}
-              >
+              <Button onClick={() => setEditDialog(null)}>{t("linksDashboard:cancel")}</Button>
+              <Button type="submit" variant="contained" disabled={isUpdating || !editUrl.trim()}>
                 {t("linksDashboard:save")}
               </Button>
             </DialogActions>
@@ -366,10 +341,7 @@ function LinksDashboardRoute() {
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   {t("linksDashboard:shortCode")}: {statsData.shortCode}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1, wordBreak: "break-all" }}
-                >
+                <Typography variant="body2" sx={{ mb: 1, wordBreak: "break-all" }}>
                   {t("linksDashboard:hereWriteALink")}: {statsData.url}
                 </Typography>
                 <Typography
@@ -380,8 +352,7 @@ function LinksDashboardRoute() {
                     mt: 2,
                   }}
                 >
-                  {t("linksDashboard:totalAccesses")}:{" "}
-                  {statsData.accessCount ?? 0}
+                  {t("linksDashboard:totalAccesses")}: {statsData.accessCount ?? 0}
                 </Typography>
               </Box>
             ) : (
@@ -389,29 +360,20 @@ function LinksDashboardRoute() {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setStatsCode(null)}>
-              {t("linksDashboard:close")}
-            </Button>
+            <Button onClick={() => setStatsCode(null)}>{t("linksDashboard:close")}</Button>
           </DialogActions>
         </Dialog>
 
         {/* Delete Confirmation Dialog */}
-        <Dialog
-          open={!!deleteConfirmCode}
-          onClose={() => setDeleteConfirmCode(null)}
-        >
+        <Dialog open={!!deleteConfirmCode} onClose={() => setDeleteConfirmCode(null)}>
           <DialogTitle>{t("linksDashboard:delete")}</DialogTitle>
           <DialogContent>
             <Typography>{t("linksDashboard:deleteConfirm")}</Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteConfirmCode(null)}>
-              {t("linksDashboard:cancel")}
-            </Button>
+            <Button onClick={() => setDeleteConfirmCode(null)}>{t("linksDashboard:cancel")}</Button>
             <Button
-              onClick={() =>
-                deleteConfirmCode && handleDelete(deleteConfirmCode)
-              }
+              onClick={() => deleteConfirmCode && handleDelete(deleteConfirmCode)}
               color="error"
               variant="contained"
               disabled={isDeleting}

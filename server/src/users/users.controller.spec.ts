@@ -1,3 +1,4 @@
+import { Test } from '@nestjs/testing';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { instanceToPlain } from 'class-transformer';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
@@ -10,8 +11,13 @@ import { UsersService } from './users.service.js';
 describe('UsersController', () => {
   let controller: UsersController;
 
-  beforeEach(() => {
-    controller = new UsersController({} as UsersService);
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [{ provide: UsersService, useValue: {} }],
+    }).compile();
+
+    controller = module.get(UsersController);
   });
 
   it('should be defined', () => {
@@ -19,41 +25,35 @@ describe('UsersController', () => {
   });
 
   it('should protect authenticated endpoints and leave user creation public', () => {
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.me),
-    ).toContain(JwtAuthGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.findAll),
-    ).toContain(JwtAuthGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.findOne),
-    ).toContain(JwtAuthGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.update),
-    ).toContain(JwtAuthGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.remove),
-    ).toContain(JwtAuthGuard);
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('me'))).toContain(JwtAuthGuard);
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('findAll'))).toContain(
+      JwtAuthGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('findOne'))).toContain(
+      JwtAuthGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('update'))).toContain(
+      JwtAuthGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('remove'))).toContain(
+      JwtAuthGuard,
+    );
 
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.me),
-    ).not.toContain(RolesGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.findAll),
-    ).toContain(RolesGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.update),
-    ).toContain(RolesGuard);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.remove),
-    ).toContain(RolesGuard);
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('me'))).not.toContain(
+      RolesGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('findAll'))).toContain(
+      RolesGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('update'))).toContain(
+      RolesGuard,
+    );
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('remove'))).toContain(
+      RolesGuard,
+    );
 
-    expect(
-      Reflect.getMetadata('roles', UsersController.prototype.update),
-    ).toContain(Role.MEMBER);
-    expect(
-      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.create),
-    ).toBeUndefined();
+    expect(Reflect.getMetadata('roles', getControllerMethod('update'))).toContain(Role.MEMBER);
+    expect(Reflect.getMetadata(GUARDS_METADATA, getControllerMethod('create'))).toBeUndefined();
   });
 
   it('should exclude the password hash from serialized user output', () => {
@@ -68,3 +68,13 @@ describe('UsersController', () => {
     expect(serialized).not.toHaveProperty('password');
   });
 });
+
+function getControllerMethod(methodName: string) {
+  const method = Object.getOwnPropertyDescriptor(UsersController.prototype, methodName)?.value;
+
+  if (typeof method !== 'function') {
+    throw new Error(`UsersController method ${methodName} was not found`);
+  }
+
+  return method;
+}

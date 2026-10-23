@@ -17,24 +17,14 @@ function ThemeDropdown() {
 
   return (
     <>
-      <IconButton
-        size="small"
-        onClick={(event) => setAnchorEl(event.currentTarget)}
-      >
+      <IconButton size="small" onClick={(event) => setAnchorEl(event.currentTarget)}>
         <Palette />
       </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
         <MenuItem selected={mode === "dark"} onClick={() => changeMode("dark")}>
           {t("common:mode.dark")}
         </MenuItem>
-        <MenuItem
-          selected={mode === "light"}
-          onClick={() => changeMode("light")}
-        >
+        <MenuItem selected={mode === "light"} onClick={() => changeMode("light")}>
           {t("common:mode.light")}
         </MenuItem>
       </Menu>

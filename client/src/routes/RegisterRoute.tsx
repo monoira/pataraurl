@@ -67,22 +67,13 @@ function RegisterRoute() {
       });
     } catch (error) {
       const isConflict = (error as FetchBaseQueryError)?.status === 409;
-      setServerError(
-        t(
-          isConflict
-            ? "register:duplicateEmail"
-            : "register:createAccountError",
-        ),
-      );
+      setServerError(t(isConflict ? "register:duplicateEmail" : "register:createAccountError"));
     }
   };
 
   return (
     <>
-      <SEO
-        title={t("register:htmlTag.title")}
-        description={t("register:htmlTag.description")}
-      />
+      <SEO title={t("register:htmlTag.title")} description={t("register:htmlTag.description")} />
       <Container
         component="main"
         maxWidth="xs"
@@ -94,19 +85,10 @@ function RegisterRoute() {
         }}
       >
         <Box sx={{ width: "100%" }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{ fontWeight: "fontWeightBold" }}
-          >
+          <Typography variant="h3" component="h1" sx={{ fontWeight: "fontWeightBold" }}>
             {t("register:registerTitle")}
           </Typography>
-          <Stack
-            component="form"
-            spacing={3}
-            sx={{ mt: 4 }}
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <Stack component="form" spacing={3} sx={{ mt: 4 }} onSubmit={handleSubmit(onSubmit)}>
             <TextField
               fullWidth
               label={t("register:name")}
@@ -133,15 +115,8 @@ function RegisterRoute() {
               {...register("password")}
             />
             {serverError && <Alert severity="error">{serverError}</Alert>}
-            <Button
-              fullWidth
-              variant="contained"
-              disabled={isLoading}
-              type="submit"
-            >
-              {isLoading && (
-                <CircularProgress color="inherit" size={18} sx={{ mr: 1 }} />
-              )}
+            <Button fullWidth variant="contained" disabled={isLoading} type="submit">
+              {isLoading && <CircularProgress color="inherit" size={18} sx={{ mr: 1 }} />}
               {t("register:createAccount")}
             </Button>
           </Stack>

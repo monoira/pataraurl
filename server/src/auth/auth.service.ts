@@ -49,9 +49,7 @@ export class AuthService {
   }
 
   compareTokens(token: string, tokenHash: string) {
-    const incomingHash = Buffer.from(
-      createHash('sha256').update(token).digest('hex'),
-    );
+    const incomingHash = Buffer.from(createHash('sha256').update(token).digest('hex'));
     const storedHash = Buffer.from(tokenHash);
 
     if (incomingHash.length !== storedHash.length) {
@@ -104,10 +102,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isValidPassword = await this.comparePasswords(
-      loginUserDto.password,
-      user.password,
-    );
+    const isValidPassword = await this.comparePasswords(loginUserDto.password, user.password);
 
     if (!isValidPassword) {
       throw new UnauthorizedException('Invalid email or password');
@@ -137,10 +132,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expired');
     }
 
-    const isValidRefreshToken = this.compareTokens(
-      refreshToken,
-      user.refreshTokenHash,
-    );
+    const isValidRefreshToken = this.compareTokens(refreshToken, user.refreshTokenHash);
 
     if (!isValidRefreshToken) {
       await this.revokeRefreshToken(user.id);

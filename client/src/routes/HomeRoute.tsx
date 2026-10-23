@@ -10,16 +10,9 @@ function HomeRoute() {
 
   return (
     <>
-      <SEO
-        title={t("home:htmlTag.title")}
-        description={t("home:htmlTag.description")}
-      />
+      <SEO title={t("home:htmlTag.title")} description={t("home:htmlTag.description")} />
 
-      <Container
-        component="main"
-        maxWidth="md"
-        sx={{ py: 8, textAlign: "center" }}
-      >
+      <Container component="main" maxWidth="md" sx={{ py: 8, textAlign: "center" }}>
         <Typography variant="h3" sx={{ fontWeight: "fontWeightBold", mb: 2 }}>
           {t("common:websiteTitle")}
         </Typography>

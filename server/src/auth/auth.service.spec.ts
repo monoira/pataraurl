@@ -51,10 +51,8 @@ describe('AuthService', () => {
 
     vi.spyOn(service, 'comparePasswords').mockResolvedValue(true);
     vi.spyOn(service, 'generateAccessToken').mockResolvedValue('access-token');
-    vi.spyOn(service, 'generateRefreshToken').mockResolvedValue(
-      'refresh-token',
-    );
-    vi.spyOn(service, 'hashToken').mockResolvedValue('hashed-refresh-token');
+    vi.spyOn(service, 'generateRefreshToken').mockResolvedValue('refresh-token');
+    vi.spyOn(service, 'hashToken').mockReturnValue('hashed-refresh-token');
 
     await expect(
       service.login({ email: 'alice@example.com', password: 'password123' }),

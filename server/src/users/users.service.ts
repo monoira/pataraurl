@@ -30,17 +30,14 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException(
-        `user with email ${createUserDto.email} already exists`,
-      );
+      throw new ConflictException(`user with email ${createUserDto.email} already exists`);
     }
 
-    const passwordHash = await this.authService.hashPassword(
-      createUserDto.password,
-    );
+    const passwordHash = await this.authService.hashPassword(createUserDto.password);
 
     const user = this.userRepository.create({
-      ...createUserDto,
+      name: createUserDto.name,
+      email: createUserDto.email,
       password: passwordHash,
     });
 
@@ -74,12 +71,13 @@ export class UsersService {
     return user;
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-    actingUser?: AuthenticatedUser,
-  ) {
-    const updateData = { ...updateUserDto };
+  async update(id: number, updateUserDto: UpdateUserDto, actingUser?: AuthenticatedUser) {
+    const updateData = {
+      name: updateUserDto.name,
+      email: updateUserDto.email,
+      password: updateUserDto.password,
+      role: updateUserDto.role,
+    };
 
     // only someone with role OWNER can change roles
     if (updateData.role !== undefined && actingUser?.role !== Role.OWNER) {
@@ -94,9 +92,7 @@ export class UsersService {
     // hash password if updated
     // if updated data includes a password, hash it before saving
     if (updateData.password) {
-      updateData.password = await this.authService.hashPassword(
-        updateData.password,
-      );
+      updateData.password = await this.authService.hashPassword(updateData.password);
     }
 
     // preload the user entity with the updated data

@@ -66,9 +66,7 @@ describe('OwnerSeederService', () => {
   it('seeds a missing owner and logs without the password', async () => {
     userRepository.findOne.mockResolvedValue(null);
     authService.hashPassword.mockResolvedValue('hashed-password');
-    const logSpy = vi
-      .spyOn(Logger.prototype, 'log')
-      .mockImplementation(() => undefined);
+    const logSpy = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
 
     await service.onModuleInit();
 

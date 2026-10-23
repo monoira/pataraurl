@@ -29,20 +29,14 @@ export class ShortenController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @Body() createShortenDto: CreateShortenDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  create(@Body() createShortenDto: CreateShortenDto, @Req() req: AuthenticatedRequest) {
     return this.shortenService.create(createShortenDto, req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':shortCode/stats')
   @ApiParam({ name: 'shortCode', type: 'string', example: 'abc123' })
-  getStats(
-    @Param('shortCode') shortCode: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  getStats(@Param('shortCode') shortCode: string, @Req() req: AuthenticatedRequest) {
     return this.shortenService.getOneStats(shortCode, req.user);
   }
 
@@ -61,10 +55,7 @@ export class ShortenController {
   @Delete(':shortCode')
   @HttpCode(204)
   @ApiParam({ name: 'shortCode', type: 'string', example: 'abc123' })
-  remove(
-    @Param('shortCode') shortCode: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  remove(@Param('shortCode') shortCode: string, @Req() req: AuthenticatedRequest) {
     return this.shortenService.remove(shortCode, req.user);
   }
 

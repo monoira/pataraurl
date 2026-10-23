@@ -2,16 +2,16 @@ import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { Role } from '../enums/role.enum.js';
 
 /** sortable fields */
-export enum SortBy {
+enum SortBy {
   Name = 'name',
   Email = 'email',
-  Role = 'role',
+  UserRole = 'role',
   CreatedAt = 'createdAt',
   UpdatedAt = 'updatedAt',
 }
 
 /** sort order directions */
-export enum SortOrder {
+enum SortOrder {
   ASC = 'ASC',
   DESC = 'DESC',
 }

@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '../common/enums/role.enum.js';
@@ -19,8 +15,7 @@ export class ShortenService {
   ) {}
 
   private generateShortCode(): string {
-    const chars =
-      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
     for (let i = 0; i < 6; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -28,11 +23,15 @@ export class ShortenService {
     return result;
   }
 
+  private async generateAvailableShortCode(): Promise<string> {
+    const shortCode = this.generateShortCode();
+    const existing = await this.shortenRepository.findOne({ where: { shortCode } });
+
+    return existing ? this.generateAvailableShortCode() : shortCode;
+  }
+
   async create(createShortenDto: CreateShortenDto, user: AuthenticatedUser) {
-    let shortCode = this.generateShortCode();
-    while (await this.shortenRepository.findOne({ where: { shortCode } })) {
-      shortCode = this.generateShortCode();
-    }
+    const shortCode = await this.generateAvailableShortCode();
 
     const shorten = this.shortenRepository.create({
       url: createShortenDto.url,
@@ -75,9 +74,7 @@ export class ShortenService {
       user.role !== Role.ADMIN &&
       user.role !== Role.OWNER
     ) {
-      throw new ForbiddenException(
-        'You can only view stats for your own short URLs',
-      );
+      throw new ForbiddenException('You can only view stats for your own short URLs');
     }
 
     return {
@@ -91,17 +88,14 @@ export class ShortenService {
       where: { userId: user.id },
     });
 
-    return shortens.map((shorten) => ({
-      ...this.formatResponse(shorten),
-      accessCount: shorten.accessCount,
-    }));
+    return shortens.map((shorten) =>
+      Object.assign(this.formatResponse(shorten), {
+        accessCount: shorten.accessCount,
+      }),
+    );
   }
 
-  async update(
-    shortCode: string,
-    updateShortenDto: UpdateShortenDto,
-    user: AuthenticatedUser,
-  ) {
+  async update(shortCode: string, updateShortenDto: UpdateShortenDto, user: AuthenticatedUser) {
     const shorten = await this.shortenRepository.findOne({
       where: { shortCode },
     });
@@ -158,12 +152,8 @@ export class ShortenService {
       url: shorten.url,
       nickname: shorten.nickname,
       shortCode: shorten.shortCode,
-      createdAt: shorten.createdAt
-        ? shorten.createdAt.toISOString()
-        : new Date().toISOString(),
-      updatedAt: shorten.updatedAt
-        ? shorten.updatedAt.toISOString()
-        : new Date().toISOString(),
+      createdAt: shorten.createdAt ? shorten.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: shorten.updatedAt ? shorten.updatedAt.toISOString() : new Date().toISOString(),
     };
   }
 }

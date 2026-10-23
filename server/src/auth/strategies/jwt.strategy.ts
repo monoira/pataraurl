@@ -14,12 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: {
-    id: string;
-    email: string;
-    role: Role;
-    type: string;
-  }) {
+  async validate(payload: { id: string; email: string; role: Role; type: string }) {
     if (payload.type !== 'access') {
       throw new UnauthorizedException('Invalid access token');
     }

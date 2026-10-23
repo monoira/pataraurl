@@ -22,10 +22,7 @@ import { useAppDispatch, useAppSelector } from "../hooks";
 import { completeLogin } from "../features/auth/authThunks";
 import SEO from "../components/SEO";
 
-const loginSchema = (messages: {
-  validEmail: string;
-  passwordRequired: string;
-}) =>
+const loginSchema = (messages: { validEmail: string; passwordRequired: string }) =>
   z.object({
     email: z.email(messages.validEmail),
     password: z.string().min(1, messages.passwordRequired),
@@ -75,18 +72,13 @@ function LoginRoute() {
       });
     } catch (error) {
       const isUnauthorized = (error as FetchBaseQueryError)?.status === 401;
-      setServerError(
-        t(isUnauthorized ? "login:invalidCredentials" : "login:loginError"),
-      );
+      setServerError(t(isUnauthorized ? "login:invalidCredentials" : "login:loginError"));
     }
   };
 
   return (
     <>
-      <SEO
-        title={t("login:htmlTag.title")}
-        description={t("login:htmlTag.description")}
-      />
+      <SEO title={t("login:htmlTag.title")} description={t("login:htmlTag.description")} />
       <Container
         component="main"
         maxWidth="xs"
@@ -98,11 +90,7 @@ function LoginRoute() {
         }}
       >
         <Box sx={{ width: "100%" }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{ fontWeight: "fontWeightBold" }}
-          >
+          <Typography variant="h3" component="h1" sx={{ fontWeight: "fontWeightBold" }}>
             {t("login:loginTitle")}
           </Typography>
           {locationState?.accountCreated && (
@@ -110,12 +98,7 @@ function LoginRoute() {
               {t("login:accountCreated")}
             </Alert>
           )}
-          <Stack
-            component="form"
-            spacing={3}
-            sx={{ mt: 4 }}
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <Stack component="form" spacing={3} sx={{ mt: 4 }} onSubmit={handleSubmit(onSubmit)}>
             <TextField
               fullWidth
               label={t("login:email")}
@@ -134,28 +117,16 @@ function LoginRoute() {
               {...register("password")}
             />
             {serverError && <Alert severity="error">{serverError}</Alert>}
-            <Button
-              fullWidth
-              variant="contained"
-              disabled={isLoading}
-              type="submit"
-            >
-              {isLoading && (
-                <CircularProgress color="inherit" size={18} sx={{ mr: 1 }} />
-              )}
+            <Button fullWidth variant="contained" disabled={isLoading} type="submit">
+              {isLoading && <CircularProgress color="inherit" size={18} sx={{ mr: 1 }} />}
               {t("login:loginTitle")}
             </Button>
           </Stack>
           <Button href="/" variant="text" sx={{ mt: 1 }} fullWidth>
             {t("login:backHome")}
           </Button>
-          <Typography
-            color="text.secondary"
-            sx={{ mt: 2, textAlign: "center" }}
-            variant="body2"
-          >
-            {t("login:newHere")}{" "}
-            <Link href="/register">{t("login:registerLink")}</Link>
+          <Typography color="text.secondary" sx={{ mt: 2, textAlign: "center" }} variant="body2">
+            {t("login:newHere")} <Link href="/register">{t("login:registerLink")}</Link>
           </Typography>
         </Box>
       </Container>

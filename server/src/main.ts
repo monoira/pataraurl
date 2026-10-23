@@ -1,16 +1,8 @@
 import 'reflect-metadata';
-import {
-  ClassSerializerInterceptor,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
-import {
-  DocumentBuilder,
-  SwaggerDocumentOptions,
-  SwaggerModule,
-} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module.js';
 
@@ -20,9 +12,7 @@ async function bootstrap() {
 
   // comma-separated origins for multi-environment deployments
   const corsOrigin = configService.getOrThrow<string>('CORS_ORIGIN');
-  const origin = corsOrigin.includes(',')
-    ? corsOrigin.split(',').map((o) => o.trim())
-    : corsOrigin;
+  const origin = corsOrigin.includes(',') ? corsOrigin.split(',').map((o) => o.trim()) : corsOrigin;
   app.enableCors({
     origin,
     credentials: true,
@@ -69,8 +59,7 @@ async function bootstrap() {
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   };
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, config, options);
+  const documentFactory = () => SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(configService.getOrThrow<number>('PORT'));

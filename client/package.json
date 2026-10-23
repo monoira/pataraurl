@@ -1,15 +1,15 @@
 {
   "name": "client",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "i18n:watch": "i18next-cli extract --watch --with-types",
     "i18n:extract": "i18next-cli extract --with-types && i18next-cli types",
     "i18n:lint": "i18next-cli lint",
@@ -46,8 +46,8 @@
     "@vitejs/plugin-react": "^6.1.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "i18next-cli": "^1.72.4",
+    "oxfmt": "^0.74.0",
     "oxlint": "^1.79.0",
-    "prettier": "^3.9.6",
     "typescript": "~6.0.2",
     "vite": "^8.2.2"
   }

@@ -1,8 +1,7 @@
 import { apiSlice } from "./apiSlice";
 import { type CreateUserInput, type User, Role } from "../types/auth";
 
-export type UserSortField =
-  "name" | "email" | "role" | "createdAt" | "updatedAt";
+export type UserSortField = "name" | "email" | "role" | "createdAt" | "updatedAt";
 export type SortOrder = "ASC" | "DESC";
 
 export const usersApi = apiSlice.injectEndpoints({

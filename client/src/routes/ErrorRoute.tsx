@@ -7,10 +7,7 @@ function ErrorRoute() {
 
   return (
     <>
-      <SEO
-        title={t("common:htmlTag.title")}
-        description={t("common:htmlTag.description")}
-      />
+      <SEO title={t("common:htmlTag.title")} description={t("common:htmlTag.description")} />
       <Container component="main">{t("common:error")}</Container>
     </>
   );

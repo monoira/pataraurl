@@ -12,9 +12,7 @@ function Footer() {
         borderColor: "divider",
       }}
     >
-      <Typography sx={{ fontWeight: "bold" }}>
-        {new Date().getUTCFullYear()}
-      </Typography>
+      <Typography sx={{ fontWeight: "bold" }}>{new Date().getUTCFullYear()}</Typography>
     </Box>
   );
 }

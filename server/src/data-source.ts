@@ -13,8 +13,7 @@ const dataSourceOptions: DataSourceOptions = {
   migrations: ['dist/migrations/*.js'],
   synchronize: false,
   migrationsRun: true,
-  ssl:
-    process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

@@ -27,11 +27,11 @@ const baseQuery = fetchBaseQuery({
 
 const mutex = new Mutex();
 
-const baseQueryWithReauth: BaseQueryFn<
-  string | FetchArgs,
-  unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
+const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions,
+) => {
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
 
