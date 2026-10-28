@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Navigate, useNavigate } from "react-router";
@@ -38,15 +38,11 @@ function RegisterRoute() {
   const navigate = useNavigate();
   const [createUser, { isLoading }] = useCreateUserMutation();
   const [serverError, setServerError] = useState<string | null>(null);
-  const schema = useMemo(
-    () =>
-      registerSchema({
-        nameRequired: t("validation:nameRequired"),
-        validEmail: t("validation:validEmail"),
-        passwordMin: t("validation:passwordMin"),
-      }),
-    [t],
-  );
+  const schema = registerSchema({
+    nameRequired: t("validation:nameRequired"),
+    validEmail: t("validation:validEmail"),
+    passwordMin: t("validation:passwordMin"),
+  });
   const {
     register,
     handleSubmit,

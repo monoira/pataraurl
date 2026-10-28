@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,14 +42,10 @@ function LoginRoute() {
     accountCreated?: boolean;
   } | null;
 
-  const schema = useMemo(
-    () =>
-      loginSchema({
-        validEmail: t("validation:validEmail"),
-        passwordRequired: t("validation:passwordRequired"),
-      }),
-    [t],
-  );
+  const schema = loginSchema({
+    validEmail: t("validation:validEmail"),
+    passwordRequired: t("validation:passwordRequired"),
+  });
 
   const {
     register,
