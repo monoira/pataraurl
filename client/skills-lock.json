@@ -19,6 +19,12 @@
       "skillPath": ".agents/skills/react-router/SKILL.md",
       "computedHash": "ff4d9bc724f0e56a51c453eef5b93caef1c16d3623ac49345d74fc1a5efbc05a"
     },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "90f1cee9326269c91b46a601b3a575491505d8e771009dacff01329381d45291"
+    },
     "zod": {
       "source": "pproenca/dot-skills",
       "sourceType": "github",
