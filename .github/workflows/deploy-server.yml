@@ -1,61 +1,64 @@
-name: deploy-server
+# NOTE: UNCOMMENT THIS TO MAKE GITHUB ACTION WORK.
+# I DISABLED IT SINCE HOSTING ON AWS WAS SUCCESSFUL, NO NEED TO KEEP HOSTING IT. IT WORKS.
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - "server/**"
-      - ".github/workflows/deploy-server.yml"
-  workflow_dispatch:
+# name: deploy-server
 
-permissions:
-  contents: read
-  id-token: write
+# on:
+#   push:
+#     branches: [main]
+#     paths:
+#       - "server/**"
+#       - ".github/workflows/deploy-server.yml"
+#   workflow_dispatch:
 
-env:
-  AWS_REGION: eu-north-1
-  AWS_ACCOUNT_ID: "277824614813"
-  ECR_REPOSITORY: pataraurl/server
-  ECS_CLUSTER: default
-  ECS_SERVICE: server
+# permissions:
+#   contents: read
+#   id-token: write
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# env:
+#   AWS_REGION: eu-north-1
+#   AWS_ACCOUNT_ID: "277824614813"
+#   ECR_REPOSITORY: pataraurl/server
+#   ECS_CLUSTER: default
+#   ECS_SERVICE: server
 
-    steps:
-      - uses: actions/checkout@v6
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-      - uses: docker/setup-qemu-action@v4
+#     steps:
+#       - uses: actions/checkout@v6
 
-      - uses: docker/setup-buildx-action@v4
+#       - uses: docker/setup-qemu-action@v4
 
-      - uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: arn:aws:iam::277824614813:role/github-actions-deploy
-          aws-region: ${{ env.AWS_REGION }}
-          audience: sts.amazonaws.com
+#       - uses: docker/setup-buildx-action@v4
 
-      - uses: aws-actions/amazon-ecr-login@v2
+#       - uses: aws-actions/configure-aws-credentials@v6
+#         with:
+#           role-to-assume: arn:aws:iam::277824614813:role/github-actions-deploy
+#           aws-region: ${{ env.AWS_REGION }}
+#           audience: sts.amazonaws.com
 
-      - uses: docker/build-push-action@v7
-        with:
-          context: ./server
-          target: production
-          platforms: linux/arm64
-          push: true
-          tags: |
-            277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:${{ github.sha }}
-            277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:latest
+#       - uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Deploy to ECS
-        run: |
-          aws ecs update-service \
-            --cluster "$ECS_CLUSTER" \
-            --service "$ECS_SERVICE" \
-            --force-new-deployment \
-            --no-cli-pager
+#       - uses: docker/build-push-action@v7
+#         with:
+#           context: ./server
+#           target: production
+#           platforms: linux/arm64
+#           push: true
+#           tags: |
+#             277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:${{ github.sha }}
+#             277824614813.dkr.ecr.eu-north-1.amazonaws.com/pataraurl/server:latest
 
-          aws ecs wait services-stable \
-            --cluster "$ECS_CLUSTER" \
-            --services "$ECS_SERVICE"
+#       - name: Deploy to ECS
+#         run: |
+#           aws ecs update-service \
+#             --cluster "$ECS_CLUSTER" \
+#             --service "$ECS_SERVICE" \
+#             --force-new-deployment \
+#             --no-cli-pager
+
+#           aws ecs wait services-stable \
+#             --cluster "$ECS_CLUSTER" \
+#             --services "$ECS_SERVICE"
